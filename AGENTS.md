@@ -14,10 +14,12 @@
 - Не изменять бинарные игровые файлы без понимания `tools/localize.py`, TMP font-builder и `tools/font-importer`.
 - Сохранять ключи, порядок записей, placeholders, rich-text tags и терминологию перевода.
 - Перед изменением структуры сначала изучить существующий pipeline.
+- При выпуске новой версии обновлять README, Release notes и `STEAM_GUIDE.txt` одновременно.
 
 ## Структура
 
 - `README.md` — пользовательская установка и совместимость.
+- `STEAM_GUIDE.txt` — готовый BBCode-текст руководства для Steam.
 - `.github/ISSUE_TEMPLATE/` — формы ошибок перевода и технических проблем.
 - `tools/localize.py` — extraction, integrity check, TextAsset write-back и verify.
 - `tools/font-importer/` — перенос статического TMP fallback в `resources.assets`.
