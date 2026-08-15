@@ -1,0 +1,48 @@
+name: Ошибка перевода
+description: Сообщить о неверной, неестественной или отсутствующей русской строке
+title: "[Перевод]: "
+body:
+  - type: input
+    id: game-version
+    attributes:
+      label: Версия игры
+      placeholder: Например, 1.7.6
+    validations:
+      required: true
+  - type: input
+    id: translation-version
+    attributes:
+      label: Версия перевода
+      placeholder: Например, v1.7
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Место обнаружения
+      description: Сцена, экран, предмет, карта, реплика или другой ориентир
+    validations:
+      required: true
+  - type: textarea
+    id: current-text
+    attributes:
+      label: Текущий текст
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Предлагаемое исправление
+      description: Необязательно, если вы только сообщаете о проблеме
+  - type: textarea
+    id: context
+    attributes:
+      label: Скриншот или дополнительный контекст
+      description: Перетащите изображение сюда либо опишите соседние реплики и происходящее
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Проверка
+      options:
+        - label: Я проверил, что использую указанную версию перевода.
+          required: true

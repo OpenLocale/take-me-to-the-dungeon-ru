@@ -1,0 +1,49 @@
+# Local game data and private translation sources
+/.local/
+/translation.json
+/.source/
+*.assets
+*.assets.*
+*.ttf
+
+# Generated builds and releases
+/build/
+/dist/
+/release/
+/FontBundle/
+*.zip
+*.7z
+*.rar
+*.sha256
+
+# Unity generated data
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+tools/unity-font-builder/Assets/CJKtc RU SDF.asset*
+
+# Python and .NET generated data
+__pycache__/
+*.py[cod]
+.venv/
+bin/
+obj/
+
+# IDE and OS
+.idea/
+.vs/
+.vscode/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Credentials and local environment
+.env
+.env.*
+*.pem
+*.key
+hosts.yml
