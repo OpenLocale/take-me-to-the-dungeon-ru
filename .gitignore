@@ -5,6 +5,7 @@
 *.assets
 *.assets.*
 *.ttf
+!tools/unity-font-builder/Assets/NotoSans-Regular.ttf
 
 # Generated builds and releases
 /build/

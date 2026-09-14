@@ -25,13 +25,17 @@ try
     var target = manager.LoadAssetsFile(inputPath, false);
     var sourceFontInfo = FindByName(manager, source, AssetClassID.MonoBehaviour, "CJKtc RU SDF");
     var sourceFontField = manager.GetBaseField(source, sourceFontInfo);
+    var sourceFamily = sourceFontField["m_FaceInfo"]["m_FamilyName"].AsString;
+    var sourceStyle = sourceFontField["m_FaceInfo"]["m_StyleName"].AsString;
+    if (sourceFamily != "Noto Sans" || sourceStyle != "Regular")
+        throw new InvalidOperationException(
+            $"Expected Noto Sans/Regular fallback, found {sourceFamily}/{sourceStyle}");
     var sourceMaterialId = PPtrPath(sourceFontField["material"]);
     var sourceTextureId = PPtrPath(sourceFontField["m_AtlasTextures"]["Array"].Children.Single());
     var characterSetPath = Path.GetFullPath(Path.Combine(
         Path.GetDirectoryName(bundlePath)!, "..", "Assets", "cyrillic_chars.txt"));
     var requiredCodepoints = File.ReadAllText(characterSetPath)
         .Select(character => (uint)character)
-        .Where(codepoint => codepoint is not 0x25FC and not 0x2764)
         .ToHashSet();
     var generatedCodepoints = sourceFontField["m_CharacterTable"]["Array"].Children
         .Select(entry => entry["m_Unicode"].AsUInt)
@@ -118,6 +122,7 @@ try
     target.file.Write(writer);
 
     Console.WriteLine($"Added static fallback font {newFontId}, material {newMaterialId}, texture {newTextureId}");
+    Console.WriteLine($"Validated fallback face: {sourceFamily}/{sourceStyle}");
     Console.WriteLine($"Embedded atlas bytes: {textureBytes.Length}");
     Console.WriteLine($"Validated character table: {requiredCodepoints.Count} required codepoints");
     return 0;

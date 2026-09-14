@@ -18,6 +18,8 @@ except ImportError:
     sys.path.insert(0, str(UNITYPY_DIR))
     import UnityPy  # type: ignore[no-redef]  # noqa: E402
 
+import localize_ui
+
 
 DEFAULT_GAME_ASSET = ROOT / ".local" / "resources.assets.ru-original"
 DEFAULT_OLD_ASSET = ROOT / ".local" / "old-translation.resources.assets"
@@ -137,41 +139,22 @@ def token_signature(value: str) -> list[str]:
     return PLACEHOLDER_RE.findall(value)
 
 
-def export_font_inputs(
-    game_asset: Path, work: Path, font_output: Path, characters_output: Path
-) -> None:
+def export_font_inputs(work: Path, characters_output: Path) -> None:
     payload, errors = check_work(work)
     if errors:
         raise RuntimeError("Working file failed integrity check")
-
-    env = UnityPy.load(str(game_asset))
-    source_font = None
-    for obj in env.objects:
-        if obj.type.name != "Font":
-            continue
-        data = obj.read()
-        if obj.path_id == 9713 and data.m_Name == "CJKtc":
-            source_font = bytes(data.m_FontData)
-            break
-    if source_font is None:
-        raise RuntimeError("CJKtc source Font (path ID 9713) was not found")
 
     characters = {
         character
         for entry in payload["entries"]
         for character in entry["translation"]
-        if character not in "\r\n\t"
+        if "\u0400" <= character <= "\u052f"
     }
     characters.update("Ёё№«»„“”‘’–—…\u00a0")
 
-    font_output.parent.mkdir(parents=True, exist_ok=True)
     characters_output.parent.mkdir(parents=True, exist_ok=True)
-    font_output.write_bytes(source_font)
     characters_output.write_text("".join(sorted(characters)), encoding="utf-8")
-    print(
-        f"Exported CJKtc ({len(source_font)} bytes) and "
-        f"{len(characters)} unique translation characters"
-    )
+    print(f"Exported {len(characters)} required Russian fallback characters")
 
 
 def check_work(work: Path) -> tuple[dict, list[str]]:
@@ -234,12 +217,17 @@ def build(game_asset: Path, work: Path, output: Path) -> None:
             changed += 1
             changed_lines += local_changes
 
+    ui_objects, ui_labels = localize_ui.patch_environment(env)
+
     output.parent.mkdir(parents=True, exist_ok=True)
     serialized_files = [item for item in env.files.values() if hasattr(item, "save")]
     if len(serialized_files) != 1:
         raise RuntimeError(f"Expected one serialized file, found {len(serialized_files)}")
     output.write_bytes(serialized_files[0].save())
-    print(f"Built {output} with {changed_lines} translated lines across {changed} TextAssets")
+    print(
+        f"Built {output} with {changed_lines} translated lines across {changed} TextAssets; "
+        f"localized {ui_labels} UI labels across {ui_objects} objects"
+    )
 
 
 def verify_built(game_asset: Path, work: Path, built_asset: Path) -> None:
@@ -247,7 +235,8 @@ def verify_built(game_asset: Path, work: Path, built_asset: Path) -> None:
     if errors:
         raise RuntimeError("Working file failed integrity check")
     _, original_assets = load_text_assets(game_asset)
-    _, built_assets = load_text_assets(built_asset)
+    built_env, built_assets = load_text_assets(built_asset)
+    localize_ui.verify_environment(built_env)
     original_selected = english_assets(original_assets)
     built_cyrillic = 0
     for _, data, script in built_assets:
@@ -258,7 +247,10 @@ def verify_built(game_asset: Path, work: Path, built_asset: Path) -> None:
             f"Built asset contains only {built_cyrillic} Cyrillic TextAssets; expected at least {len(original_selected)}"
         )
     expected = len(payload["entries"])
-    print(f"Verified readable build: {built_cyrillic} Cyrillic TextAssets; {expected} unique working strings")
+    print(
+        f"Verified readable build: {built_cyrillic} Cyrillic TextAssets; "
+        f"{expected} unique working strings; {len(localize_ui.UI_TEXT_OBJECTS)} localized UI labels"
+    )
 
 
 def sha256(path: Path) -> str:
@@ -282,9 +274,7 @@ def main() -> None:
     check_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
 
     font_inputs_parser = subparsers.add_parser("font-inputs")
-    font_inputs_parser.add_argument("--game-asset", type=Path, default=DEFAULT_GAME_ASSET)
     font_inputs_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
-    font_inputs_parser.add_argument("--font-output", type=Path, required=True)
     font_inputs_parser.add_argument("--characters-output", type=Path, required=True)
 
     build_parser = subparsers.add_parser("build")
@@ -310,12 +300,7 @@ def main() -> None:
             raise SystemExit(1)
         print("Integrity check passed")
     elif args.command == "font-inputs":
-        export_font_inputs(
-            args.game_asset,
-            args.work,
-            args.font_output,
-            args.characters_output,
-        )
+        export_font_inputs(args.work, args.characters_output)
     elif args.command == "build":
         build(args.game_asset, args.work, args.output)
     elif args.command == "verify":

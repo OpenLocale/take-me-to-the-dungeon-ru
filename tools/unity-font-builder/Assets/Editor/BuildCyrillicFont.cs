@@ -8,7 +8,7 @@ using UnityEngine.TextCore.LowLevel;
 
 public static class BuildCyrillicFont
 {
-    private const string SourceFontPath = "Assets/CJKtc.ttf";
+    private const string SourceFontPath = "Assets/NotoSans-Regular.ttf";
     private const string CharactersPath = "Assets/cyrillic_chars.txt";
     private const string FontAssetPath = "Assets/CJKtc RU SDF.asset";
     private const string BundleName = "cjkru-sdf";
@@ -25,7 +25,7 @@ public static class BuildCyrillicFont
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             var sourceFont = AssetDatabase.LoadAssetAtPath<Font>(SourceFontPath);
             if (sourceFont == null)
-                throw new InvalidOperationException("CJKtc source font was not imported");
+                throw new InvalidOperationException("Noto Sans Regular source font was not imported");
 
             var characters = File.ReadAllText(Path.GetFullPath(CharactersPath));
             if (string.IsNullOrWhiteSpace(characters))
@@ -49,12 +49,13 @@ public static class BuildCyrillicFont
             if (!fontAsset.TryAddCharacters(characters, out var missingCharacters, false))
             {
                 var missing = string.Concat(missingCharacters.Distinct());
-                if (missingCharacters.Any(character => character >= '\u0400' && character <= '\u052F'))
-                    throw new InvalidOperationException("Missing Cyrillic characters: " + missing);
-                Debug.LogWarning("Source font lacks non-Cyrillic characters retained in the main atlas: " + missing);
+                throw new InvalidOperationException("Noto Sans Regular lacks required fallback characters: " + missing);
             }
 
             fontAsset.atlasPopulationMode = AtlasPopulationMode.Static;
+            if (AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontAssetPath) != null &&
+                !AssetDatabase.DeleteAsset(FontAssetPath))
+                throw new InvalidOperationException("Existing TMP font asset could not be replaced");
             AssetDatabase.CreateAsset(fontAsset, FontAssetPath);
             AssetDatabase.AddObjectToAsset(fontAsset.material, fontAsset);
             foreach (var texture in fontAsset.atlasTextures)
@@ -76,7 +77,7 @@ public static class BuildCyrillicFont
             if (manifest == null || !File.Exists(Path.Combine(output, BundleName)))
                 throw new InvalidOperationException("AssetBundle build failed");
 
-            Debug.Log($"Built {BundleName} with {characters.Distinct().Count()} characters");
+            Debug.Log($"Built {BundleName} from Noto Sans/Regular with {characters.Distinct().Count()} characters");
             EditorApplication.Exit(0);
         }
         catch (Exception exception)

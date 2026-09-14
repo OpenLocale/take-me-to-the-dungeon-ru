@@ -13,7 +13,7 @@ body:
     id: translation-version
     attributes:
       label: Версия перевода
-      placeholder: Например, v1.7
+      placeholder: Например, v0.8.0
     validations:
       required: true
   - type: input
