@@ -27,10 +27,29 @@ UI_TEXT_OBJECTS = {
 }
 
 # DeckDetailUIViewController / Right Panel / Attr Panel / Txt Statictis.
-# TMP_Text 3.0.6, m_lineSpacing: increase only this scrollable text field.
+# DrawPair overlays the number using <line-height=0%><br>; extra spacing
+# moves it below its label. Keep this field at zero, not the global font.
 DECK_STATISTICS_OBJECT = 273009
 DECK_LINE_SPACING_OFFSET = 340
-DECK_LINE_SPACING = (5.0, 30.0)
+DECK_LINE_SPACING = (5.0, 0.0)
+
+# RB-010: literal 1444 is used only by ComputeTemplateStatictis/DrawTitle
+# in Steam build 25319640. TMP 3.0.6 combines primary lineHeight (28) with
+# current fallback pointSize (90): 400% gives 27.38 units at 22pt, while
+# 120% gives only 8.21. Preserve the IL2CPP literal length and all offsets.
+DECK_METADATA_SIZE = 14062472
+DECK_HEADING_FORMAT = (
+    b'</b><line-height=120%><br><line-height=100%>',
+    b'</b><line-height=400%><br><line-height=100%>',
+)
+
+# RB-012: literal 16605 is referenced only by DungeonButtonUIView.
+# Both UTF-8 strings are 18 bytes; {0} is the numeric floor, {1} its name.
+DUNGEON_FLOOR_FORMAT = (b'{0}st Floor    {1}', 'Этаж {0}   {1}'.encode('utf-8'))
+RUNTIME_METADATA_REPLACEMENTS = (
+    (169765, *DECK_HEADING_FORMAT),
+    (612488, *DUNGEON_FLOOR_FORMAT),
+)
 
 # TreasureButtonUIView / InnerPanel / Txt Description in its six prefab copies.
 # Fixed 258.05 x 116.92 area: allow TMP to fit long descriptions, never grow
@@ -42,12 +61,30 @@ TREASURE_AUTOSIZING_OFFSET = 304
 TREASURE_FONT_BOUNDS_OFFSET = 308
 TREASURE_FONT_BOUNDS = (17.0, 26.0)
 
+# RB-015: only DungeonTreasureShop/BuyTreasure prefab copies. Keep the
+# description's 116.92-high area and text size, reserve a separate footer.
+# Description bottom=-180; new owned-field top=-188.1, gap=8.1 units.
+SHOP_OWNED_RECTS = (208594, 197033)
+SHOP_OWNED_SHIFT = 22.0
+SHOP_OWNED_HEIGHT = 26.0  # One 18pt Noto line needs 24.52 units.
+
 # Standalone UI textures only; pixels are embedded without changing .resS.
+UI_TEXTURE_ENTRIES = json.loads(
+    Path(__file__).with_name("ui_image_localization.json").read_text(encoding="utf-8")
+)["textures"]
 UI_TEXTURES = {
     entry["texture_path_id"]: (entry["name"], *entry["size"], entry["png"])
-    for entry in json.loads(
-        Path(__file__).with_name("ui_image_localization.json").read_text(encoding="utf-8")
-    )["textures"]
+    for entry in UI_TEXTURE_ENTRIES
+}
+UI_TEXTURE_OUTPUT_SIZES = {
+    entry["texture_path_id"]: tuple(entry.get("output_size", entry["size"]))
+    for entry in UI_TEXTURE_ENTRIES
+}
+
+# RB-013: private Spine geometry/UV data for the longer Russian loading word.
+LOADING_TEXT_ASSETS = {
+    5010: ("Loading", 10080, "audit/ui_loading_ru.json"),
+    5030: ("Loading.atlas", 281, "audit/ui_loading_ru.atlas"),
 }
 
 
@@ -63,10 +100,56 @@ def patch_ui_textures(env) -> None:
         if (texture.m_Name, texture.m_Width, texture.m_Height) != (name, width, height):
             raise RuntimeError(f"UI texture {path_id} differs from the supported build")
         with Image.open(ROOT / filename) as image:
-            if image.size != (width, height):
+            if image.size != UI_TEXTURE_OUTPUT_SIZES[path_id]:
                 raise RuntimeError(f"Localized UI texture {filename} has the wrong size")
             texture.set_image(image.convert("RGBA"), target_format=4, mipmap_count=1)
         texture.save()
+
+
+def patch_loading_animation(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    for path_id, (name, source_size, filename) in LOADING_TEXT_ASSETS.items():
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "TextAsset":
+            raise RuntimeError(f"Loading TextAsset {path_id} is missing")
+        data = obj.read()
+        source = data.m_Script
+        if isinstance(source, bytes):
+            source = source.decode("utf-8")
+        if data.m_Name != name or len(source.encode("utf-8")) != source_size:
+            raise RuntimeError(f"Loading TextAsset {path_id} differs from the supported build")
+        translated = (ROOT / filename).read_text(encoding="utf-8")
+        if path_id == 5010:
+            original = json.loads(source)
+            result = json.loads(translated)
+            if original["skeleton"]["spine"] != "4.0.63" or result["skeleton"]["spine"] != "4.0.63":
+                raise RuntimeError("Loading Spine version changed")
+            if original["slots"] != result["slots"] or original["animations"] != result["animations"]:
+                raise RuntimeError("Loading slots or animation curves changed")
+            if [(b["name"], b.get("parent")) for b in original["bones"]] != [
+                (b["name"], b.get("parent")) for b in result["bones"]
+            ]:
+                raise RuntimeError("Loading bone hierarchy changed")
+        elif "size:65,133" not in source or "size:128,128" not in translated:
+            raise RuntimeError("Unexpected Loading atlas dimensions")
+        data.m_Script = translated
+        data.save()
+
+
+def patch_shop_footers(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    for path_id in SHOP_OWNED_RECTS:
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "RectTransform":
+            raise RuntimeError(f"Shop owned-field RectTransform {path_id} is missing")
+        rect = obj.read()
+        if rect.m_GameObject.read().m_Name != "Txt Owned":
+            raise RuntimeError(f"Unexpected shop owned-field {path_id}")
+        if abs(rect.m_AnchoredPosition.y + 179.1) > 0.01 or abs(rect.m_SizeDelta.y - 42.51451) > 0.01:
+            raise RuntimeError(f"Shop owned-field {path_id} layout differs")
+        rect.m_AnchoredPosition.y -= SHOP_OWNED_SHIFT
+        rect.m_SizeDelta.y = SHOP_OWNED_HEIGHT
+        rect.save()
 
 
 def patch_deck_statistics(env) -> None:
@@ -103,6 +186,37 @@ def patch_treasure_descriptions(env) -> None:
         struct.pack_into("<i", raw, TREASURE_AUTOSIZING_OFFSET, 1)
         struct.pack_into("<ff", raw, TREASURE_FONT_BOUNDS_OFFSET, *TREASURE_FONT_BOUNDS)
         obj.set_raw_data(bytes(raw))
+
+
+def patch_runtime_metadata(source: Path, output: Path) -> None:
+    data = source.read_bytes()
+    if len(data) != DECK_METADATA_SIZE or data[:8] != struct.pack('<II', 0xFAB11BAF, 31):
+        raise RuntimeError('UI metadata differs from Steam build 25319640')
+    for offset, original, translated in RUNTIME_METADATA_REPLACEMENTS:
+        if len(original) != len(translated) or data.count(original) != 1:
+            raise RuntimeError('Expected one size-preserving UI format')
+        if data[offset:offset + len(original)] != original:
+            raise RuntimeError(f'Unexpected UI metadata format at {offset}')
+        data = data.replace(original, translated, 1)
+    if source.resolve() == output.resolve():
+        raise RuntimeError('Write patched metadata to a separate build file')
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(data)
+    print(f'Patched {len(RUNTIME_METADATA_REPLACEMENTS)} scoped UI formats in {output}; byte size preserved')
+
+
+def verify_runtime_metadata(source: Path, output: Path) -> None:
+    data = source.read_bytes()
+    result = output.read_bytes()
+    if len(data) != DECK_METADATA_SIZE or len(result) != len(data):
+        raise RuntimeError('Unexpected UI metadata size')
+    for offset, original, translated in RUNTIME_METADATA_REPLACEMENTS:
+        if data.count(original) != 1 or data[offset:offset + len(original)] != original:
+            raise RuntimeError('Unexpected UI metadata source')
+        data = data.replace(original, translated, 1)
+    if result != data:
+        raise RuntimeError('Metadata changes extend beyond the scoped UI formats')
+    print('Verified scoped UI formats; all other metadata bytes unchanged')
 
 
 def serialized_string(value: str) -> bytes:
@@ -199,6 +313,8 @@ def patch_environment(env) -> tuple[int, int]:
     patch_deck_statistics(env)
     patch_treasure_descriptions(env)
     patch_ui_textures(env)
+    patch_loading_animation(env)
+    patch_shop_footers(env)
     return changed_objects, changed_fields
 
 
@@ -211,13 +327,31 @@ def verify_environment(env) -> None:
         if obj is None or obj.type.name != "Texture2D":
             raise RuntimeError(f"UI texture {path_id} is missing")
         texture = obj.read()
-        if (texture.m_Name, texture.m_Width, texture.m_Height) != (name, width, height):
+        target_width, target_height = UI_TEXTURE_OUTPUT_SIZES[path_id]
+        if (texture.m_Name, texture.m_Width, texture.m_Height) != (name, target_width, target_height):
             raise RuntimeError(f"Localized UI texture {path_id} has the wrong layout")
         if texture.m_StreamData and texture.m_StreamData.path:
             raise RuntimeError(f"Localized UI texture {path_id} is not embedded")
         with Image.open(ROOT / filename) as image:
             if texture.image.tobytes() != image.convert("RGBA").tobytes():
                 raise RuntimeError(f"Localized UI texture {path_id} pixels differ")
+    for path_id, (name, _, filename) in LOADING_TEXT_ASSETS.items():
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "TextAsset":
+            raise RuntimeError(f"Loading TextAsset {path_id} is missing")
+        data = obj.read()
+        script = data.m_Script
+        if isinstance(script, bytes):
+            script = script.decode("utf-8")
+        if data.m_Name != name or script != (ROOT / filename).read_text(encoding="utf-8"):
+            raise RuntimeError(f"Loading TextAsset {path_id} differs from localized source")
+    for path_id in SHOP_OWNED_RECTS:
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "RectTransform":
+            raise RuntimeError(f"Shop owned-field RectTransform {path_id} is missing")
+        rect = obj.read()
+        if abs(rect.m_AnchoredPosition.y + 179.1 + SHOP_OWNED_SHIFT) > 0.01 or rect.m_SizeDelta.y != SHOP_OWNED_HEIGHT:
+            raise RuntimeError(f"Shop owned-field {path_id} footer was not separated")
     statistics = objects.get(DECK_STATISTICS_OBJECT)
     if statistics is None:
         raise RuntimeError("Deck statistics TMP object is missing")
@@ -273,10 +407,18 @@ def main() -> None:
     patch_parser = subparsers.add_parser("patch")
     patch_parser.add_argument("asset", type=Path)
     patch_parser.add_argument("output", type=Path)
+    for command in ('patch-runtime-metadata', 'verify-runtime-metadata'):
+        metadata_parser = subparsers.add_parser(command)
+        metadata_parser.add_argument('source', type=Path)
+        metadata_parser.add_argument('output', type=Path)
     args = parser.parse_args()
 
     if args.command == "scan":
         scan(args.asset, args.all_text)
+    elif args.command == 'patch-runtime-metadata':
+        patch_runtime_metadata(args.source, args.output)
+    elif args.command == 'verify-runtime-metadata':
+        verify_runtime_metadata(args.source, args.output)
     else:
         patch(args.asset, args.output)
 
