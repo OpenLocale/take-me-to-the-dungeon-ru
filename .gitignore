@@ -1,5 +1,8 @@
 # Local game data and private translation sources
 /.local/
+/.tools/
+/audit/
+tools/ui_*_ru.png
 /translation.json
 /.source/
 *.assets

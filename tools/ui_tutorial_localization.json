@@ -1,0 +1,954 @@
+{
+  "mapping_source": "globalgamemanagers ResourceManager pathID 13 m_Container; English locale resources, not default Chinese prefab sprites",
+  "source_assets": "resources.assets.ru-original; original .resS remains unchanged",
+  "candidate_package": {"version":"v0.9.0-dev","date":"2026-10-13","resources_bytes":269146160,"changed_translations":163,"check":"passed once for final RB-009 build","verify":"passed once after final build/font import","installed":true,"published":false},
+  "unreleased_changes": {"version":"v0.9.0-dev","branch":"fixes/runtime-review-2026-10-12","win_orientation":"W/I use counter-clockwise packing and clockwise extraction for Spine rotate:90; corrected after user runtime screenshot","review":"Root rechecked all 33 tutorial images and 21 small labels; no other rotation/clipping defect found in reviewed images","installation":"installed 2026-10-13 at explicit user request; previous 2026-10-08 package preserved in main workspace release","new_imagegen_calls":0},
+  "installed_package": {"version":"v0.9.0-dev","date":"2026-10-13","installed_at":"2026-10-13T00:27:23+04:00","steam_build":"25319640","resources_bytes":269146160,"tutorial_textures":33,"other_added_textures":3,"changed_translations":163,"check":"passed once for final RB-009 build","verify":"passed once after final build/font import","installed_only":"resources.assets","metadata":"existing confirmed Сохр. retained; 14062472 bytes; not recopied","runtime":"user check pending; game not launched automatically"},
+  "contact_sheet": "audit/ui_tutorial_en_contact.png",
+  "sample_review_sheet": "audit/ui_tutorial_samples_qa.png",
+  "method": "33 text-containing English-locale tutorial images accepted after root review; two text-free illustrations unchanged. Precise bitmap editing/typesetting, with approved generated RGB in two shop images and one narrow clean-plate ribbon. All final tutorial textures retain native dimensions and original alpha exactly; full 1920x1080 texture frames reconstructed without rescaling cropped sprites.",
+  "external_application_policy": "Lovense application screenshots retain real English controls exactly. No Russian overlays, glosses or extra explanations. Translate only game-owned UI.",
+  "service_v2_method": {
+    "script": "audit/ui_tutorial_service_edit.py",
+    "method": "Deterministic native-size Cyrillic typesetting over restored original glyph masks; original alpha restored exactly over the entire screenshot. No new ImageGen calls. Text/header of the accepted same-sprite UI texture2624 reused for the integrated gold record rule. Texture3324/3135 retain visually approved generated RGB with original source alpha restored. Two original stars in2072 moved after headings with root approval; green150% and orange effect highlighting retained.",
+    "originals": "audit/ui_tutorial_en_<ID>.png; adult2502 original text-only crop audit/ui_tutorial_en_2502_text_regions.png",
+    "comparisons": "audit/ui_tutorial_<ID>_before_after.png; adult2502 audit/ui_tutorial_2502_ru_text_regions.png",
+    "review_contact": "audit/ui_tutorial_service_qa.png",
+    "prompts": "No additional AI prompts for v2. Historical rejected/partially retained ImageGen attempts remain recorded below."
+  },
+  "textures": [
+    {
+      "texture_path_id": 723,
+      "sprite_path_id": 10414,
+      "resource_key": "locales/en/img/ui_tutor_07",
+      "status": "accepted",
+      "name": "UI_tutor_07",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_723_ru.png",
+      "native_png": "tools/ui_tutorial_723_texture_ru.png",
+      "method": "compact_v2_native_glyph_edit",
+      "text": "Переведены подписи боя, карт и целей; исходные числовые значения сохранены.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 1379,
+      "sprite_path_id": 10824,
+      "resource_key": "locales/en/img/ui_tutor_08",
+      "status": "accepted",
+      "name": "UI_tutor_08",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_1379_ru.png",
+      "native_png": "tools/ui_tutorial_1379_texture_ru.png",
+      "method": "compact_v2_native_glyph_edit",
+      "text": "WIN→ПОБЕДА; Elite→Элитный враг; переведены видимые подписи боя. Фрагмент WARNING полностью закрыт исходным значком врага.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 3867,
+      "sprite_path_id": 12493,
+      "resource_key": "locales/en/img/ui_tutor_09",
+      "status": "accepted",
+      "name": "UI_tutor_09",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_3867_ru.png",
+      "native_png": "tools/ui_tutorial_3867_texture_ru.png",
+      "method": "compact_v2_native_glyph_edit",
+      "text": "Переведены видимые подписи наград, карт и рун; числа и значки сохранены.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 757,
+      "sprite_path_id": 10435,
+      "resource_key": "locales/en/img/ui_tutor_10",
+      "status": "accepted",
+      "name": "UI_tutor_10",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_757_ru.png",
+      "native_png": "tools/ui_tutorial_757_texture_ru.png",
+      "method": "compact_v2_native_glyph_edit",
+      "text": "Создание рун: Создано:, Материалы, Алая руна I, Урон +2; числа сохранены.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 1745,
+      "sprite_path_id": 11073,
+      "resource_key": "locales/en/img/ui_tutor_11",
+      "status": "accepted",
+      "name": "UI_tutor_11",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_1745_ru.png",
+      "native_png": "tools/ui_tutorial_1745_texture_ru.png",
+      "method": "compact_v2_native_glyph_edit",
+      "text": "Переведены подписи выбора и управления картами и рунами.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 2099,
+      "sprite_path_id": 11309,
+      "resource_key": "locales/en/img/ui_tutor_12",
+      "status": "accepted",
+      "name": "UI_tutor_12",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_2099_ru.png",
+      "native_png": "tools/ui_tutorial_2099_texture_ru.png",
+      "method": "compact_v2_native_glyph_edit",
+      "text": "SHOP→ЛАВКА; Монстр, Магазин; переведены подписи карты подземелья.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 2220,
+      "sprite_path_id": 11386,
+      "resource_key": "locales/en/img/ui_tutor_13",
+      "status": "accepted",
+      "name": "UI_tutor_13",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_2220_ru.png",
+      "native_png": "tools/ui_tutorial_2220_texture_ru.png",
+      "method": "compact_v2_native_glyph_edit",
+      "text": "COST→ЦЕНА (4); Нанести урон; Пустая ячейка руны; белые подписи эффектов, серые пустые ячейки.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 2559,
+      "sprite_path_id": 11622,
+      "resource_key": "locales/en/img/ui_tutor_14",
+      "status": "accepted",
+      "name": "UI_tutor_14",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_2559_ru.png",
+      "native_png": "tools/ui_tutorial_2559_texture_ru.png",
+      "method": "treasure_native_glyph_edit",
+      "text": "Управление рунами; Доступные руны; Руна используется; В ножны Ур.1; Удар из ножен; Получение заряда; COST→ЦЕНА (2).",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 3434,
+      "sprite_path_id": 12205,
+      "resource_key": "locales/en/img/ui_tutor_15",
+      "status": "accepted",
+      "name": "UI_tutor_15",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_3434_ru.png",
+      "native_png": "tools/ui_tutorial_3434_texture_ru.png",
+      "method": "treasure_native_glyph_edit",
+      "text": "Переведены названия карт и действия сброса/сжигания, видимые уровни и подсказки; COST→ЦЕНА (4). Исходные звёзды сохранены.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 4014,
+      "sprite_path_id": 12589,
+      "resource_key": "locales/en/img/ui_tutor_25",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_4014_ru.png",
+      "text": "MEMORY→ВОСПОМИНАНИЯ; GALLERY→ГАЛЕРЕЯ; MAKE DIFFERENT CHOICES→ИЗМЕНИТЬ ВЫБОР",
+      "name": "UI_tutor_25",
+      "size": [
+        1046,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_4014_ru.png"
+    },
+    {
+      "texture_path_id": 1094,
+      "sprite_path_id": 10640,
+      "resource_key": "locales/en/img/ui_tutor_26",
+      "status": "no_text_illustration",
+      "name": "UI_tutor_26",
+      "size": [
+        1046,
+        448
+      ]
+    },
+    {
+      "texture_path_id": 2021,
+      "sprite_path_id": 11257,
+      "resource_key": "locales/en/img/ui_tutor_28",
+      "status": "accepted",
+      "name": "UI_tutor_28",
+      "size": [
+        1048,
+        448
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_2021_ru.png",
+      "native_png": "tools/ui_tutorial_2021_ru.png",
+      "method": "treasure_native_glyph_edit",
+      "text": "Бонус урона от «Зар.» увеличен в 2.5 раза для этой карты.; Зар. — оранжевым; все исходные числовые значения сохранены."
+    },
+    {
+      "texture_path_id": 2842,
+      "sprite_path_id": 11808,
+      "resource_key": "locales/en/img/ui_tutor_30_2",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_2842_ru.png",
+      "text": "Town→Город; Main Story→Основной сюжет; Side Story→Дополнительные истории; Sequel→Продолжение; CHAPTER→ГЛАВА; A GIRL’S ENCOUNTER→ВСТРЕЧА С ДЕВУШКОЙ; THE JOURNEY BEGINS→ПУТЕШЕСТВИЕ НАЧИНАЕТСЯ; THE VAMPIRE QUEEN→КОРОЛЕВА ВАМПИРОВ",
+      "number_locks": [
+        1,
+        2,
+        3
+      ],
+      "name": "UI_tutor_30_2",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_2842_ru.png"
+    },
+    {
+      "texture_path_id": 1447,
+      "sprite_path_id": 10865,
+      "resource_key": "locales/en/img/ui_tutor_31_2",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_1447_ru.png",
+      "text": "Memory→Воспоминания; Animations→Анимации; Memories→Сцены; UNLOCK MAIN CG→ОТКРЫТЬ ОСНОВНЫЕ ИЛЛЮСТРАЦИИ",
+      "name": "UI_tutor_31_2",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_1447_ru.png"
+    },
+    {
+      "texture_path_id": 944,
+      "sprite_path_id": 10558,
+      "resource_key": "locales/en/img/ui_tutor_31_3",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_944_ru.png",
+      "text": "Town→Город; Main Story→Основной сюжет; Side Story→Дополнительные истории; Sequel→Продолжение; ACT→АКТ; CRISIS STRIKES AGAIN→НОВЫЙ КРИЗИС; PANDEMONIUM→СТОЛПОТВОРЕНИЕ",
+      "number_locks": [
+        1,
+        2
+      ],
+      "name": "UI_tutor_31_3",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_944_ru.png"
+    },
+    {
+      "texture_path_id": 1858,
+      "sprite_path_id": 11150,
+      "resource_key": "locales/en/img/ui_tutor_32",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_1858_ru.png",
+      "text": "Change difficulty→Сложность; Please select the desired difficulty→Выберите уровень сложности; Easy→Лёгкая; Normal→Обычная; Hard→Сложная; CONFIRM→ПОДТВЕРДИТЬ; CANCEL→ОТМЕНА; SAVE GAME→СОХРАНИТЬ ИГРУ; DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ; MEMORY→ВОСПОМИНАНИЯ; GALLERY→ГАЛЕРЕЯ; Una→Юна; Crystal→Кристаллы (visible suffix only)",
+      "crystal_evidence": "i18n_Image MB234695 key ui.una_home.attr_crystal on GO90689; RectTransform208309 ancestor Crystal. Source visible tal is the cropped suffix of Crystal.",
+      "number_locks": [
+        70,
+        5
+      ],
+      "name": "UI_tutor_32",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_1858_ru.png"
+    },
+    {
+      "texture_path_id": 2072,
+      "sprite_path_id": 11290,
+      "resource_key": "locales/en/img/ui_tutor_33",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_2072_ru.png",
+      "number_locks": [
+        1,
+        2,
+        8,
+        12,
+        "150%"
+      ],
+      "text": "BACK→ОБОРОТ; FRONT→ЛИЦЕВАЯ; COST→ЦЕНА; Empty Rune Slot→Пустая ячейка руны; Deal DMG→Нанести урон; Succubus Queen→Королева суккубов; Alluring Blossom→Манящий цветок; Summon Succubus Queen→Призвать королеву суккубов; Summon the Succubus Queen to inflict damage on the target.→Призывает королеву суккубов, которая наносит урон цели.; Ally: Succubus Queen→Союзник: Королева суккубов; Disappears after use. Gain Alluring Blossom. (Rune will be passed to the card obtained.)→Пропадает после использования. Даёт карту «Манящий цветок». (Установленная руна перейдёт на полученную карту.); When an attribute counters another, its damage multiplier increases by150%.→При атаке по уязвимому свойству множитель урона увеличивается на 150%.; Excite→Возбуждение; Succubus Queen gains1Excite.→Королева суккубов получает 1 ед. возбуждения.",
+      "review_note": "Two original stars repositioned after full 14px headings with root authorization. Original star shape/count retained;150% green and возбуждения orange.",
+      "name": "UI_tutor_33",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_2072_ru.png"
+    },
+    {
+      "texture_path_id": 3889,
+      "sprite_path_id": 12508,
+      "resource_key": "locales/en/img/ui_tutor_40_1",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3889_ru.png",
+      "text": "TRINITY→ТРОИЦА; SELECT DECK→ВЫБРАТЬ КОЛОДУ; UNLOCK CARD→ОТКРЫТЬ КАРТУ; UNLOCK TREASURE→ОТКРЫТЬ СОКРОВИЩЕ; UNLOCK RUNE→ОТКРЫТЬ РУНУ; HIGHEST SCORE→РЕКОРД; DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ; STRIKE→В БОЙ!; Return→Назад",
+      "number_locks": [
+        "---"
+      ],
+      "name": "UI_tutor_40_1",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3889_ru.png"
+    },
+    {
+      "texture_path_id": 3219,
+      "sprite_path_id": 12069,
+      "resource_key": "locales/en/img/ui_tutor_40_2",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3219_ru.png",
+      "text": "Abyss Dungeon→Подземелье Бездны; HIGHEST SCORE→РЕКОРД; DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ",
+      "number_locks": [
+        0,
+        "---"
+      ],
+      "name": "UI_tutor_40_2",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3219_ru.png"
+    },
+    {
+      "texture_path_id": 2772,
+      "sprite_path_id": 11760,
+      "resource_key": "locales/en/img/ui_tutor_41",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_2772_ru.png",
+      "text": "Trinity→Троица; Good Faith→Добрые намерения; Incompetence→Неумёха; Initial Score Multiplier→Начальный множитель очков; SELECT→ВЫБРАТЬ; PARTNER→СПУТНИК; Unsheathed Slash→Удар из ножен; Tiger Slash→Удар тигра; Fallen Leaves→Опавшие листья; Flowery Dazzle→Цветочная вспышка; Fireball→Огненный шар; Pyroblast→Пировзрыв; Defense→Защита; Healing Spell→Исцеление; Slash→Удар; New Moon→Новолуние; Blizzard→Метель; Mystic Arrow→Мистическая стрела; Demon Slash→Демонический удар; Waxing Crescent→Растущий полумесяц; Magic Gyration→Магический вихрь",
+      "number_locks": [
+        "100%",
+        "125%",
+        "150%",
+        "all card numbers"
+      ],
+      "name": "UI_tutor_41",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_2772_ru.png"
+    },
+    {
+      "texture_path_id": 2206,
+      "sprite_path_id": 11376,
+      "resource_key": "locales/en/img/ui_tutor_42_1",
+      "status": "accepted",
+      "name": "UI_tutor_42_1",
+      "size": [
+        1048,
+        448
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_2206_ru.png",
+      "native_png": "tools/ui_tutorial_2206_ru.png",
+      "method": "treasure_native_glyph_edit",
+      "text": "Сумка сокровищ; Ядовитый ритуал; Неудержимость; Locked→Закрыто; COST→ЦЕНА (9). Исходные звёзды и числа сохранены."
+    },
+    {
+      "texture_path_id": 1090,
+      "sprite_path_id": 10637,
+      "resource_key": "locales/en/img/ui_tutor_42_2",
+      "status": "accepted",
+      "name": "UI_tutor_42_2",
+      "size": [
+        1048,
+        448
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_1090_ru.png",
+      "native_png": "tools/ui_tutorial_1090_ru.png",
+      "method": "treasure_native_glyph_edit",
+      "text": "Кровавый меч: Урон +3 за каждые 5 потерянных единиц здоровья.; COST→ЦЕНА (2). Исходные 3 и 5 сохранены."
+    },
+    {
+      "texture_path_id": 3324,
+      "sprite_path_id": 12140,
+      "resource_key": "locales/en/img/ui_tutor_42_3",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3324_ru.png",
+      "text": "Unlock Card→Открыть карты; Rune Crafting→Создание рун; Rune Market→Рынок рун",
+      "name": "UI_tutor_42_3",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3324_ru.png"
+    },
+    {
+      "texture_path_id": 3382,
+      "sprite_path_id": 12177,
+      "resource_key": "locales/en/img/ui_tutor_44_1",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3382_ru.png",
+      "text": "Battle Reward→Награда за бой; [Abyss] Mutated Scroll II→[Бездна] Мутировавший свиток II; Scarlet Rune I→Алая руна I; Cobalt Rune I→Кобальтовая руна I; CLOSE→ЗАКРЫТЬ",
+      "number_locks": [
+        163,
+        "I",
+        "II"
+      ],
+      "name": "UI_tutor_44_1",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3382_ru.png"
+    },
+    {
+      "texture_path_id": 642,
+      "sprite_path_id": 10363,
+      "resource_key": "locales/en/img/ui_tutor_44_2",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_642_ru.png",
+      "text": "Prepare→Подготовка; SHOP→ЛАВКА; Hot Spring→Горячий источник; Elite→Элитный враг; WARNING→ВНИМАНИЕ",
+      "review_note": "Root confirmed WARNING (not ELITE) from rotated original crop audit/ui_tutorial_642_elite_source.png and accepted this PNG. Original foreground enemy icon occludes the middle of the vertical word.",
+      "name": "UI_tutor_44_2",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_642_ru.png"
+    },
+    {
+      "texture_path_id": 3135,
+      "sprite_path_id": 12007,
+      "resource_key": "locales/en/img/ui_tutor_45_1",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3135_ru.png",
+      "text": "Abyss Card→Карта Бездны; Buy Card→Купить карту; Purchase Rune→Купить руну; Rune Crafting→Создание рун",
+      "name": "UI_tutor_45_1",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3135_ru.png"
+    },
+    {
+      "texture_path_id": 1225,
+      "sprite_path_id": 10727,
+      "resource_key": "locales/en/img/ui_tutor_45_2",
+      "status": "accepted",
+      "name": "UI_tutor_45_2",
+      "size": [
+        1048,
+        448
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_1225_ru.png",
+      "native_png": "tools/ui_tutorial_1225_ru.png",
+      "method": "treasure_native_glyph_edit",
+      "text": "Переведены интерфейс карты Бездны, свойства и названия рун; COST→ЦЕНА (видимый фрагмент). Числа сохранены."
+    },
+    {
+      "texture_path_id": 3436,
+      "sprite_path_id": 12207,
+      "resource_key": "locales/en/img/ui_tutor_46",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3436_ru.png",
+      "text": "Select game data→Сохранения",
+      "intentionally_preserved": [
+        "Tomoki",
+        "HE",
+        "NE",
+        "BE"
+      ],
+      "preserved": "Tomoki is a sample player name; HE/NE/BE are ending codes;12,546and35originalpixels unchanged.",
+      "name": "UI_tutor_46",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3436_ru.png"
+    },
+    {
+      "texture_path_id": 2214,
+      "sprite_path_id": 11384,
+      "resource_key": "locales/en/img/ui_tutor_47_1",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_2214_ru.png",
+      "preserve_external_english": true,
+      "external_unchanged_region": [
+        0,
+        0,
+        497,
+        448
+      ],
+      "text": "Others→Прочее; Good Kids Mode→Безопасный режим; Resource Pack→Набор ресурсов; Manage→Управление; Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено; CLOSE→ЗАКРЫТЬ",
+      "name": "UI_tutor_47_1",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_2214_ru.png"
+    },
+    {
+      "texture_path_id": 3144,
+      "sprite_path_id": 12014,
+      "resource_key": "locales/en/img/ui_tutor_47_2",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3144_ru.png",
+      "preserve_external_english": true,
+      "external_unchanged_region": [
+        0,
+        0,
+        319,
+        448
+      ],
+      "text": "Others→Прочее; Good Kids Mode→Безопасный режим; Resource Pack→Набор ресурсов; Manage→Управление; Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено",
+      "name": "UI_tutor_47_2",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3144_ru.png"
+    },
+    {
+      "texture_path_id": 1263,
+      "sprite_path_id": 10749,
+      "resource_key": "locales/en/img/ui_tutor_47_3",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_1263_ru.png",
+      "preserve_external_english": true,
+      "review_note": "Both halves here are game-owned UI; no external application controls. Original crop of left-side labels retained; shortened IP-адрес/Порт are offscreen.",
+      "text": "Others→Прочее; Good Kids Mode→Безопасный режим; Resource Pack→Набор ресурсов; Manage→Управление; Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено; Device Information→Сведения об устройстве; CLOSE→ЗАКРЫТЬ; SEARCH TOYS→ПОИСК УСТРОЙСТВ; EXIT→ВЫЙТИ",
+      "preserved": "LVS-MAX/LVS-Max model names, addresses,30010and0%",
+      "name": "UI_tutor_47_3",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_1263_ru.png"
+    },
+    {
+      "texture_path_id": 3512,
+      "sprite_path_id": 12256,
+      "resource_key": "locales/en/img/ui_tutor_47_4",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_3512_ru.png",
+      "preserve_external_english": true,
+      "review_note": "Entire screenshot is game UI, not external Lovense controls.",
+      "text": "Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено; CLOSE→ЗАКРЫТЬ; Hide→Скрыть; Auto→Авто; Log→История",
+      "preserved": "Lovense brand,192.168.1.47and30010",
+      "name": "UI_tutor_47_4",
+      "size": [
+        1048,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_3512_ru.png"
+    },
+    {
+      "texture_path_id": 3205,
+      "sprite_path_id": 12060,
+      "resource_key": "locales/en/img/ui_tutor_treasure",
+      "status": "accepted",
+      "name": "UI_tutor_treasure",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha_exact": true,
+      "root_reviewed": true,
+      "png": "tools/ui_tutorial_3205_ru.png",
+      "native_png": "tools/ui_tutorial_3205_texture_ru.png",
+      "method": "treasure_native_glyph_edit",
+      "text": "Магические перчатки Ур.2; Requires Charge Up→Требует заряда; Зар.: бонус урона составляет 1.5 / 1.6. Исходные числовые значения сохранены.",
+      "native_insert": {
+        "origin": [
+          304,
+          85
+        ],
+        "sprite_size": [
+          1312,
+          937
+        ],
+        "texture_size": [
+          1920,
+          1080
+        ],
+        "mode": "Copy only source-to-translation changed RGB pixels; keep original native alpha and untouched native pixels."
+      }
+    },
+    {
+      "texture_path_id": 2502,
+      "sprite_path_id": 11578,
+      "resource_key": "_naughtytime/locales/en/img/ui_tutor_25",
+      "status": "accepted",
+      "method": "service_v2",
+      "alpha_exact": true,
+      "png": "tools/ui_tutorial_2502_ru.png",
+      "text": "MEMORY→ВОСПОМИНАНИЯ; GALLERY→ГАЛЕРЕЯ; MAKE DIFFERENT CHOICES→ИЗМЕНИТЬ ВЫБОР",
+      "review_region": "audit/ui_tutorial_2502_ru_text_regions.png",
+      "review_note": "Adult artwork preserved pixel-for-pixel outside three letter masks.",
+      "name": "UI_tutor_25",
+      "size": [
+        1046,
+        448
+      ],
+      "root_reviewed": true,
+      "native_png": "tools/ui_tutorial_2502_ru.png"
+    },
+    {
+      "texture_path_id": 2874,
+      "sprite_path_id": 11831,
+      "resource_key": "_naughtytime/locales/en/img/ui_tutor_26",
+      "status": "no_text_illustration",
+      "name": "UI_tutor_26",
+      "size": [
+        1046,
+        448
+      ]
+    }
+  ],
+  "sample_generation_prompts": [
+    {
+      "texture_path_id": 4014,
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: screenshot illustration used in a Russian game tutorial. Replace only the English text listed below with exact Russian; preserve screenshot dimensions, cropping, positions, backgrounds, icons, frames, alpha/transparency, numbers and original UI style. Use the same simple bold/regular sans-serif as source, with clean Cyrillic and ё; fit naturally in the original button areas, reducing lettering size slightly if needed. Do not add captions or invent UI. Replace MEMORY with ВОСПОМИНАНИЯ; GALLERY with ГАЛЕРЕЯ; MAKE DIFFERENT CHOICES with ИЗМЕНИТЬ ВЫБОР. Keep all three menu buttons, original button sizes and colors, cropped bedroom background and existing transparent right area. No other text or changes.",
+      "final_use": "Rejected whole-image attempt; final image replaced by precise glyph editing."
+    },
+    {
+      "texture_path_id": 1447,
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: screenshot illustration used in a Russian game tutorial. Replace only the English text listed below with exact Russian; preserve screenshot dimensions, cropping, positions, backgrounds, icons, frames, alpha/transparency, numbers and original UI style. Use the same simple bold/regular sans-serif as source, with clean Cyrillic and ё; fit naturally in the original button areas, reducing lettering size slightly if needed. Do not add captions or invent UI. Replace title Memory→Воспоминания; tab Animations→Анимации; tab Memories→Сцены; cyan button UNLOCK MAIN CG→ОТКРЫТЬ ИЛЛЮСТРАЦИИ (two lines if needed). Retain both large black empty panels with question marks, the original frames, positions and transparent background. No other changes.",
+      "final_use": "Rejected whole-image attempt; final image replaced by precise glyph editing."
+    },
+    {
+      "texture_path_id": 1858,
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: screenshot illustration used in a Russian game tutorial. Replace only the English text listed below with exact Russian; preserve screenshot dimensions, cropping, positions, backgrounds, icons, frames, alpha/transparency, numbers and original UI style. Use the same simple bold/regular sans-serif as source, with clean Cyrillic and ё; fit naturally in the original button areas, reducing lettering size slightly if needed. Do not add captions or invent UI. Replace all visible game UI English as follows: header Change difficulty→Сложность; sentence Please select the desired difficulty→Выберите уровень сложности; options Easy→Лёгкая, Normal→Обычная, Hard→Сложная; bottom CONFIRM→ПОДТВЕРДИТЬ, CANCEL→ОТМЕНА. Dimmed background left menu SAVE GAME→СОХРАНИТЬ ИГРУ; CHANGE DIFFICULTY→СЛОЖНОСТЬ; DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ; MEMORY→ВОСПОМИНАНИЯ; GALLERY→ГАЛЕРЕЯ; background header Una→Юна. Keep all numbers70,5, buttons, triangle graph, original dimmed background and artwork exactly. Only replace text, do not alter layout.",
+      "final_use": "Rejected whole-image attempt; final image replaced by precise glyph editing."
+    },
+    {
+      "texture_path_id": 2072,
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: exact game tutorial screenshot with two cards side by side and their descriptions. Change ONLY English text to exact Russian mappings below. Preserve every icon, number, star count, divider, frame, artwork, crop and transparency. This is mechanically sensitive UI; numbers1,2,8,12,150% MUST remain exactly as in source. Do not add mechanics, extra numbers, rename abilities differently, or omit any words. Fit long Russian text with slightly smaller clean sans-serif within original text panels. Keep screenshot aspect1048:448 and original layout. Text mappings: BACK→ОБОРОТ; FRONT→ЛИЦЕВАЯ; COST→ЦЕНА (both card cost badges, retain1 and2); every Empty Rune Slot→Пустая ячейка руны (all8); Deal DMG→Нанести урон (both); Succubus Queen→Королева суккубов (left card title); Alluring Blossom→Манящий цветок (right card title and its skill heading). Bottom-left first skill heading Summon Succubus Queen ★→Призвать королеву суккубов ★; description Summon the Succubus Queen to inflict damage on the target.→Призывает королеву суккубов, которая наносит урон цели. Bottom-left second skill heading Ally: Succubus Queen ★→Союзник: Королева суккубов ★; description Disappears after use. Gain Alluring Blossom. (Rune will be passed to the card obtained.)→Пропадает после использования. Даёт карту «Манящий цветок». (Установленная руна перейдёт на полученную карту.) Bottom-right first heading Alluring Blossom ★☆☆→Манящий цветок ★☆☆; description When an attribute counters another, its damage multiplier increases by150%.→При атаке по уязвимому свойству множитель урона увеличивается на 150%. Bottom-right second heading Excite ★→Возбуждение ★; description Succubus Queen gains1Excite.→Королева суккубов получает 1 ед. возбуждения. Preserve original gold highlighting for150% and key effectword; no captions outside UI.",
+      "final_use": "Rejected whole-image attempt; final image replaced by precise glyph editing."
+    }
+  ],
+  "other_confirmed_image_text": [
+    {
+      "texture_path_id": 2219,
+      "name": "win_logo",
+      "size": [
+        2048,
+        1024
+      ],
+      "png": "tools/ui_win_logo_ru.png",
+      "text": "ПОБЕДА",
+      "material_path_id": 555,
+      "atlas_textasset_path_id": 4697,
+      "skeleton_textasset_path_id": 4753,
+      "status": "accepted",
+      "note": "ПОБ/Е/ДА occupy original W/I/N regions. W/I packing corrected to Rotate270 and extraction to Rotate90 according to Spine MeshAttachment.UpdateUVs rotate:90 mapping; old preview's inverse rotation masked the error. Original atlas, skeleton, material, wings/lights and geometry unchanged. Only three native glyph regions differ. Installed 2026-10-13 at explicit user request; user runtime confirmation pending."
+    },
+    {
+      "texture_path_id": 3608,
+      "sprite_path_id": 12323,
+      "name": "IconDungeonFloorNote_Elite",
+      "size": [
+        204,
+        189
+      ],
+      "png": "tools/ui_image_3608_ru.png",
+      "text": "ЭЛИТА",
+      "status": "accepted",
+      "resource_key": "icon/icondungeonfloornote_elite",
+      "mapping_source": "globalgamemanagers ResourceManager 13, fileID 4",
+      "alpha_exact": true
+    },
+    {
+      "texture_path_id": 3901,
+      "sprite_path_id": 12514,
+      "name": "IconDungeonFloorNote_Boss",
+      "size": [
+        204,
+        189
+      ],
+      "png": "tools/ui_image_3901_ru.png",
+      "text": "БОСС",
+      "status": "accepted",
+      "resource_key": "icon/icondungeonfloornote_boss",
+      "mapping_source": "globalgamemanagers ResourceManager 13, fileID 4",
+      "alpha_exact": true
+    }
+  ],
+  "additional_generation_prompts": [
+    {
+      "texture_path_id": 3324,
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: English game tutorial screenshot. Replace ONLY the listed English text with exact Russian; keep all artwork, original iconography, numbers, UI positions, crop and transparency unchanged. Use the same clean Cyrillic sans-serif style and weight as original. This is a production tutorial asset, not a redesign; preserve the original screenshot aspect ratio1048:448, fit naturally inside existing label areas, no captions or new UI. Three large shop cards: Unlock Card→Открыть карты; Rune Crafting→Создание рун; Rune Market→Рынок рун. Preserve all three black icons, card frames and background exactly. No other changes.",
+      "final_use": "Approved generated RGB retained with exact original alpha restored."
+    },
+    {
+      "texture_path_id": 3135,
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: English game tutorial screenshot. Replace ONLY the listed English text with exact Russian; keep all artwork, original iconography, numbers, UI positions, crop and transparency unchanged. Use the same clean Cyrillic sans-serif style and weight as original. This is a production tutorial asset, not a redesign; preserve the original screenshot aspect ratio1048:448, fit naturally inside existing label areas, no captions or new UI. Four large shop cards: Abyss Card→Карта Бездны; Buy Card→Купить карту; Purchase Rune→Купить руну; Rune Crafting→Создание рун. Preserve all four black icons, card frames and weapon-shop background exactly. No other changes.",
+      "final_use": "Approved generated RGB retained with exact original alpha restored."
+    },
+    {
+      "texture_path_id": 3219,
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: English game tutorial screenshot. Replace ONLY the listed English text with exact Russian; keep all artwork, original iconography, numbers, UI positions, crop and transparency unchanged. Use the same clean Cyrillic sans-serif style and weight as original. This is a production tutorial asset, not a redesign; preserve the original screenshot aspect ratio1048:448, fit naturally inside existing label areas, no captions or new UI. Header Abyss Dungeon→Подземелье Бездны; gold record panel heading HIGHEST SCORE→РЕКОРД; white button DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ. Preserve the0in top-right currency panel and --- in record panel exactly; preserve the chibi character and cave background exactly. No other changes.",
+      "final_use": "Rejected whole-image attempt; final image replaced by precise glyph editing."
+    }
+  ],
+  "coverage_limit": "Common serialized UI Images, exact English tutorial locale resources, confirmed dynamic ELITE/BOSS resources and the animated WIN atlas inspected. Brands, controller labels and ending codes intentionally retained. This is not proof that every unrelated scene-only atlas contains no additional text.",
+  "root_review": {
+    "date": "2026-10-08",
+    "accepted_text_images": 33,
+    "unchanged_no_text_images": 2,
+    "checked": "Native-sized text/meaning/legibility, original numbers and stars, no residual readable English game labels in reviewed regions, source alpha, native crop coordinates. External Lovense controls remain unchanged with no explanations.",
+    "runtime_pending": [
+      "Tutorial text at actual game scale",
+      "ПОБЕДА Spine animation",
+      "ЭЛИТА/БОСС dynamic badges"
+    ]
+  },
+  "final_edit_scripts": [
+    "audit/localize_tutorial_compact.cs",
+    "audit/ui_tutorial_service_edit.py",
+    "audit/treasure_png_localize.ps1",
+    "audit/localize_win_logo.cs",
+    "audit/localize_floor_badges.cs"
+  ],
+  "final_generation_prompts": [
+    {
+      "texture_path_id": 3205,
+      "tool": "built-in image_gen edit",
+      "transparent_background": false,
+      "input": "audit/treasure_3205_ribbon_zoom.png",
+      "output": "audit/treasure_3205_ribbon_clean.png",
+      "final_use": "Only old lettering/shadow RGB mask composited from the generated clean plate; Russian label typeset precisely afterwards; original alpha restored. No CLI used.",
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target: a magnified crop of an existing videogame tooltip corner with a narrow orange diagonal ribbon, a charcoal card panel, thin grey ornamental card borders and a softly blurred grey/olive backdrop. Remove ONLY every white English letter of 'Requires Charge Up' and its dark text shadows. The words protrude above and below the orange ribbon, so restore both the orange ribbon under the letters and the grey/olive/dark background or card border underneath those protruding letters. Produce a CLEAN PLATE WITHOUT ANY TEXT. Keep the same image framing, exact corner geometry, slant of ribbon, ribbon width and color, thin card borders, pixelated screenshot texture, and soft fading around the screenshot. Do not sharpen or redesign. Do not introduce or erase any structural edge except where English lettering obscures it. No Russian text yet. No other text. No icons, numbers or extra elements. Preserve exact 510 by 360 composition, alignment and scale."
+    }
+  ]
+}

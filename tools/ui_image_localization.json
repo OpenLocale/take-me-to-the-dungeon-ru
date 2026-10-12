@@ -1,0 +1,697 @@
+{
+  "source": "resources.assets.ru-original",
+  "candidate_package": {"version":"v0.9.0-dev","date":"2026-10-13","resources_bytes":269146160,"changed_translations":163,"check":"passed once for final RB-009 build","font":"Noto Sans Regular; 77 required codepoints","verify":"passed once after final build/font import; 55 textures and 6 treasure autosizing fields","installed":true,"published":false},
+  "unreleased_changes": {"version":"v0.9.0-dev","branch":"fixes/runtime-review-2026-10-12","win_orientation":"W/I Rotate270 packing; Rotate90 extraction matches Spine rotate:90 UV mapping","installation":"installed 2026-10-13 at explicit user request; previous 2026-10-08 package preserved in main workspace release","new_imagegen_calls":0},
+  "installed_package": {"version":"v0.9.0-dev","date":"2026-10-13","installed_at":"2026-10-13T00:27:23+04:00","steam_build":"25319640","resources_bytes":269146160,"textures":55,"changed_translations":163,"check":"passed once for final RB-009 build","font":"Noto Sans Regular; 77 required codepoints","verify":"passed once after final build/font import","installed_only":"resources.assets","metadata":"existing confirmed Сохр. retained; 14062472 bytes; not recopied","runtime":"user check pending; game not launched automatically"},
+  "review_sheet": "audit/ui_image_localization_qa.png",
+  "method": "Original 19 common UI images: built-in ImageGen plus precise compositing. Added 33 tutorials, WIN atlas and two floor badges: reviewed native bitmap edits; detailed methods, actual prompts and preserved regions in ui_tutorial_localization.json. Original .resS untouched.",
+  "scope": "55 integrated textures: 19 common UI + 33 English-locale tutorials + animated WIN atlas + 2 dynamic floor badges. Original dimensions and sprite/Spine geometry unchanged. Runtime remains user-checked.",
+  "textures": [
+    {
+      "texture_path_id": 1640,
+      "sprite_path_id": 11000,
+      "name": "ui_dungeon_new",
+      "text": "НОВ.",
+      "png": "tools/ui_new_ru.png",
+      "size": [
+        73,
+        30
+      ],
+      "image_references": 22
+    },
+    {
+      "texture_path_id": 1960,
+      "sprite_path_id": 11217,
+      "name": "btn_all",
+      "text": "ВСЕ",
+      "png": "tools/ui_image_1960_ru.png",
+      "size": [
+        68,
+        67
+      ]
+    },
+    {
+      "texture_path_id": 3852,
+      "sprite_path_id": 12483,
+      "name": "btn_all2",
+      "text": "ВСЕ",
+      "png": "tools/ui_image_3852_ru.png",
+      "size": [
+        68,
+        67
+      ]
+    },
+    {
+      "texture_path_id": 3088,
+      "sprite_path_id": 11975,
+      "name": "btn_all_off",
+      "text": "ВСЕ",
+      "png": "tools/ui_image_3088_ru.png",
+      "size": [
+        98,
+        98
+      ]
+    },
+    {
+      "texture_path_id": 758,
+      "sprite_path_id": 10436,
+      "name": "btn_all_on",
+      "text": "ВСЕ",
+      "png": "tools/ui_image_758_ru.png",
+      "size": [
+        98,
+        98
+      ]
+    },
+    {
+      "texture_path_id": 2624,
+      "sprite_path_id": 11663,
+      "name": "BEST RECORD",
+      "text": "РЕКОРД",
+      "png": "tools/ui_image_2624_ru.png",
+      "size": [
+        372,
+        116
+      ]
+    },
+    {
+      "texture_path_id": 2151,
+      "sprite_path_id": 11340,
+      "name": "Score_bg",
+      "text": "СЧЁТ",
+      "png": "tools/ui_image_2151_ru.png",
+      "size": [
+        371,
+        114
+      ]
+    },
+    {
+      "texture_path_id": 1579,
+      "sprite_path_id": 10962,
+      "name": "Score_icon_05",
+      "text": "БОНУС",
+      "png": "tools/ui_image_1579_ru.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "texture_path_id": 2083,
+      "sprite_path_id": 11298,
+      "name": "icon_max",
+      "text": "МАКС.",
+      "png": "tools/ui_image_2083_ru.png",
+      "size": [
+        56,
+        25
+      ]
+    },
+    {
+      "texture_path_id": 1426,
+      "sprite_path_id": 10851,
+      "name": "Endness_UnaCost",
+      "text": "ЦЕНА",
+      "png": "tools/ui_image_1426_ru.png",
+      "size": [
+        91,
+        91
+      ]
+    },
+    {
+      "texture_path_id": 1226,
+      "sprite_path_id": 10728,
+      "name": "crystal",
+      "text": "ЦЕНА",
+      "png": "tools/ui_image_1226_ru.png",
+      "size": [
+        269,
+        279
+      ]
+    },
+    {
+      "texture_path_id": 2487,
+      "sprite_path_id": 11567,
+      "name": "btn_Gacah_04",
+      "text": "ЦЕНА",
+      "png": "tools/ui_image_2487_ru.png",
+      "size": [
+        181,
+        180
+      ]
+    },
+    {
+      "texture_path_id": 2263,
+      "sprite_path_id": 11414,
+      "name": "partner_select",
+      "text": "СПУТНИК / ВЫБРАТЬ",
+      "png": "tools/ui_image_2263_ru.png",
+      "size": [
+        176,
+        264
+      ]
+    },
+    {
+      "texture_path_id": 1139,
+      "sprite_path_id": 10665,
+      "name": "btn_test_deck",
+      "text": "Тест / колоды",
+      "png": "tools/ui_image_1139_ru.png",
+      "size": [
+        69,
+        69
+      ]
+    },
+    {
+      "texture_path_id": 2835,
+      "sprite_path_id": 11804,
+      "name": "btn_test_dungeon",
+      "text": "Тест / подзем.",
+      "png": "tools/ui_image_2835_ru.png",
+      "size": [
+        69,
+        69
+      ]
+    },
+    {
+      "texture_path_id": 956,
+      "sprite_path_id": 10565,
+      "name": "dungeon_logo_101_on",
+      "text": "1-й этаж",
+      "png": "tools/ui_image_956_ru.png",
+      "size": [
+        512,
+        256
+      ]
+    },
+    {
+      "texture_path_id": 2491,
+      "sprite_path_id": 11570,
+      "name": "ui02_icon_shop",
+      "text": "ЛАВКА",
+      "png": "tools/ui_image_2491_ru.png",
+      "size": [
+        150,
+        140
+      ]
+    },
+    {
+      "texture_path_id": 1584,
+      "sprite_path_id": 10965,
+      "name": "ui03_warning02",
+      "text": "ВНИМАНИЕ",
+      "png": "tools/ui_image_1584_ru.png",
+      "size": [
+        1920,
+        407
+      ]
+    },
+    {
+      "texture_path_id": 3666,
+      "sprite_path_id": 12359,
+      "name": "ui_dungeon_get",
+      "text": "ВЗЯТО!",
+      "png": "tools/ui_image_3666_ru.png",
+      "size": [
+        71,
+        30
+      ]
+    },
+    {
+      "texture_path_id": 723,
+      "sprite_path_id": 10414,
+      "name": "UI_tutor_07",
+      "text": "Переведены подписи боя, карт и целей; исходные числовые значения сохранены.",
+      "png": "tools/ui_tutorial_723_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_07"
+    },
+    {
+      "texture_path_id": 1379,
+      "sprite_path_id": 10824,
+      "name": "UI_tutor_08",
+      "text": "WIN→ПОБЕДА; Elite→Элитный враг; переведены видимые подписи боя. Фрагмент WARNING полностью закрыт исходным значком врага.",
+      "png": "tools/ui_tutorial_1379_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_08"
+    },
+    {
+      "texture_path_id": 3867,
+      "sprite_path_id": 12493,
+      "name": "UI_tutor_09",
+      "text": "Переведены видимые подписи наград, карт и рун; числа и значки сохранены.",
+      "png": "tools/ui_tutorial_3867_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_09"
+    },
+    {
+      "texture_path_id": 757,
+      "sprite_path_id": 10435,
+      "name": "UI_tutor_10",
+      "text": "Создание рун: Создано:, Материалы, Алая руна I, Урон +2; числа сохранены.",
+      "png": "tools/ui_tutorial_757_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_10"
+    },
+    {
+      "texture_path_id": 1745,
+      "sprite_path_id": 11073,
+      "name": "UI_tutor_11",
+      "text": "Переведены подписи выбора и управления картами и рунами.",
+      "png": "tools/ui_tutorial_1745_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_11"
+    },
+    {
+      "texture_path_id": 2099,
+      "sprite_path_id": 11309,
+      "name": "UI_tutor_12",
+      "text": "SHOP→ЛАВКА; Монстр, Магазин; переведены подписи карты подземелья.",
+      "png": "tools/ui_tutorial_2099_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_12"
+    },
+    {
+      "texture_path_id": 2220,
+      "sprite_path_id": 11386,
+      "name": "UI_tutor_13",
+      "text": "COST→ЦЕНА (4); Нанести урон; Пустая ячейка руны; белые подписи эффектов, серые пустые ячейки.",
+      "png": "tools/ui_tutorial_2220_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_13"
+    },
+    {
+      "texture_path_id": 2559,
+      "sprite_path_id": 11622,
+      "name": "UI_tutor_14",
+      "text": "Управление рунами; Доступные руны; Руна используется; В ножны Ур.1; Удар из ножен; Получение заряда; COST→ЦЕНА (2).",
+      "png": "tools/ui_tutorial_2559_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_14"
+    },
+    {
+      "texture_path_id": 3434,
+      "sprite_path_id": 12205,
+      "name": "UI_tutor_15",
+      "text": "Переведены названия карт и действия сброса/сжигания, видимые уровни и подсказки; COST→ЦЕНА (4). Исходные звёзды сохранены.",
+      "png": "tools/ui_tutorial_3434_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_15"
+    },
+    {
+      "texture_path_id": 4014,
+      "sprite_path_id": 12589,
+      "name": "UI_tutor_25",
+      "text": "MEMORY→ВОСПОМИНАНИЯ; GALLERY→ГАЛЕРЕЯ; MAKE DIFFERENT CHOICES→ИЗМЕНИТЬ ВЫБОР",
+      "png": "tools/ui_tutorial_4014_ru.png",
+      "size": [
+        1046,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_25"
+    },
+    {
+      "texture_path_id": 2021,
+      "sprite_path_id": 11257,
+      "name": "UI_tutor_28",
+      "text": "Бонус урона от «Зар.» увеличен в 2.5 раза для этой карты.; Зар. — оранжевым; все исходные числовые значения сохранены.",
+      "png": "tools/ui_tutorial_2021_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_28"
+    },
+    {
+      "texture_path_id": 2842,
+      "sprite_path_id": 11808,
+      "name": "UI_tutor_30_2",
+      "text": "Town→Город; Main Story→Основной сюжет; Side Story→Дополнительные истории; Sequel→Продолжение; CHAPTER→ГЛАВА; A GIRL’S ENCOUNTER→ВСТРЕЧА С ДЕВУШКОЙ; THE JOURNEY BEGINS→ПУТЕШЕСТВИЕ НАЧИНАЕТСЯ; THE VAMPIRE QUEEN→КОРОЛЕВА ВАМПИРОВ",
+      "png": "tools/ui_tutorial_2842_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_30_2"
+    },
+    {
+      "texture_path_id": 1447,
+      "sprite_path_id": 10865,
+      "name": "UI_tutor_31_2",
+      "text": "Memory→Воспоминания; Animations→Анимации; Memories→Сцены; UNLOCK MAIN CG→ОТКРЫТЬ ОСНОВНЫЕ ИЛЛЮСТРАЦИИ",
+      "png": "tools/ui_tutorial_1447_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_31_2"
+    },
+    {
+      "texture_path_id": 944,
+      "sprite_path_id": 10558,
+      "name": "UI_tutor_31_3",
+      "text": "Town→Город; Main Story→Основной сюжет; Side Story→Дополнительные истории; Sequel→Продолжение; ACT→АКТ; CRISIS STRIKES AGAIN→НОВЫЙ КРИЗИС; PANDEMONIUM→СТОЛПОТВОРЕНИЕ",
+      "png": "tools/ui_tutorial_944_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_31_3"
+    },
+    {
+      "texture_path_id": 1858,
+      "sprite_path_id": 11150,
+      "name": "UI_tutor_32",
+      "text": "Change difficulty→Сложность; Please select the desired difficulty→Выберите уровень сложности; Easy→Лёгкая; Normal→Обычная; Hard→Сложная; CONFIRM→ПОДТВЕРДИТЬ; CANCEL→ОТМЕНА; SAVE GAME→СОХРАНИТЬ ИГРУ; DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ; MEMORY→ВОСПОМИНАНИЯ; GALLERY→ГАЛЕРЕЯ; Una→Юна; Crystal→Кристаллы (visible suffix only)",
+      "png": "tools/ui_tutorial_1858_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_32"
+    },
+    {
+      "texture_path_id": 2072,
+      "sprite_path_id": 11290,
+      "name": "UI_tutor_33",
+      "text": "BACK→ОБОРОТ; FRONT→ЛИЦЕВАЯ; COST→ЦЕНА; Empty Rune Slot→Пустая ячейка руны; Deal DMG→Нанести урон; Succubus Queen→Королева суккубов; Alluring Blossom→Манящий цветок; Summon Succubus Queen→Призвать королеву суккубов; Summon the Succubus Queen to inflict damage on the target.→Призывает королеву суккубов, которая наносит урон цели.; Ally: Succubus Queen→Союзник: Королева суккубов; Disappears after use. Gain Alluring Blossom. (Rune will be passed to the card obtained.)→Пропадает после использования. Даёт карту «Манящий цветок». (Установленная руна перейдёт на полученную карту.); When an attribute counters another, its damage multiplier increases by150%.→При атаке по уязвимому свойству множитель урона увеличивается на 150%.; Excite→Возбуждение; Succubus Queen gains1Excite.→Королева суккубов получает 1 ед. возбуждения.",
+      "png": "tools/ui_tutorial_2072_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_33"
+    },
+    {
+      "texture_path_id": 3889,
+      "sprite_path_id": 12508,
+      "name": "UI_tutor_40_1",
+      "text": "TRINITY→ТРОИЦА; SELECT DECK→ВЫБРАТЬ КОЛОДУ; UNLOCK CARD→ОТКРЫТЬ КАРТУ; UNLOCK TREASURE→ОТКРЫТЬ СОКРОВИЩЕ; UNLOCK RUNE→ОТКРЫТЬ РУНУ; HIGHEST SCORE→РЕКОРД; DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ; STRIKE→В БОЙ!; Return→Назад",
+      "png": "tools/ui_tutorial_3889_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_40_1"
+    },
+    {
+      "texture_path_id": 3219,
+      "sprite_path_id": 12069,
+      "name": "UI_tutor_40_2",
+      "text": "Abyss Dungeon→Подземелье Бездны; HIGHEST SCORE→РЕКОРД; DUNGEON RECORD→ИСТОРИЯ ПОХОДОВ",
+      "png": "tools/ui_tutorial_3219_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_40_2"
+    },
+    {
+      "texture_path_id": 2772,
+      "sprite_path_id": 11760,
+      "name": "UI_tutor_41",
+      "text": "Trinity→Троица; Good Faith→Добрые намерения; Incompetence→Неумёха; Initial Score Multiplier→Начальный множитель очков; SELECT→ВЫБРАТЬ; PARTNER→СПУТНИК; Unsheathed Slash→Удар из ножен; Tiger Slash→Удар тигра; Fallen Leaves→Опавшие листья; Flowery Dazzle→Цветочная вспышка; Fireball→Огненный шар; Pyroblast→Пировзрыв; Defense→Защита; Healing Spell→Исцеление; Slash→Удар; New Moon→Новолуние; Blizzard→Метель; Mystic Arrow→Мистическая стрела; Demon Slash→Демонический удар; Waxing Crescent→Растущий полумесяц; Magic Gyration→Магический вихрь",
+      "png": "tools/ui_tutorial_2772_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_41"
+    },
+    {
+      "texture_path_id": 2206,
+      "sprite_path_id": 11376,
+      "name": "UI_tutor_42_1",
+      "text": "Сумка сокровищ; Ядовитый ритуал; Неудержимость; Locked→Закрыто; COST→ЦЕНА (9). Исходные звёзды и числа сохранены.",
+      "png": "tools/ui_tutorial_2206_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_42_1"
+    },
+    {
+      "texture_path_id": 1090,
+      "sprite_path_id": 10637,
+      "name": "UI_tutor_42_2",
+      "text": "Кровавый меч: Урон +3 за каждые 5 потерянных единиц здоровья.; COST→ЦЕНА (2). Исходные 3 и 5 сохранены.",
+      "png": "tools/ui_tutorial_1090_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_42_2"
+    },
+    {
+      "texture_path_id": 3324,
+      "sprite_path_id": 12140,
+      "name": "UI_tutor_42_3",
+      "text": "Unlock Card→Открыть карты; Rune Crafting→Создание рун; Rune Market→Рынок рун",
+      "png": "tools/ui_tutorial_3324_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_42_3"
+    },
+    {
+      "texture_path_id": 3382,
+      "sprite_path_id": 12177,
+      "name": "UI_tutor_44_1",
+      "text": "Battle Reward→Награда за бой; [Abyss] Mutated Scroll II→[Бездна] Мутировавший свиток II; Scarlet Rune I→Алая руна I; Cobalt Rune I→Кобальтовая руна I; CLOSE→ЗАКРЫТЬ",
+      "png": "tools/ui_tutorial_3382_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_44_1"
+    },
+    {
+      "texture_path_id": 642,
+      "sprite_path_id": 10363,
+      "name": "UI_tutor_44_2",
+      "text": "Prepare→Подготовка; SHOP→ЛАВКА; Hot Spring→Горячий источник; Elite→Элитный враг; WARNING→ВНИМАНИЕ",
+      "png": "tools/ui_tutorial_642_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_44_2"
+    },
+    {
+      "texture_path_id": 3135,
+      "sprite_path_id": 12007,
+      "name": "UI_tutor_45_1",
+      "text": "Abyss Card→Карта Бездны; Buy Card→Купить карту; Purchase Rune→Купить руну; Rune Crafting→Создание рун",
+      "png": "tools/ui_tutorial_3135_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_45_1"
+    },
+    {
+      "texture_path_id": 1225,
+      "sprite_path_id": 10727,
+      "name": "UI_tutor_45_2",
+      "text": "Переведены интерфейс карты Бездны, свойства и названия рун; COST→ЦЕНА (видимый фрагмент). Числа сохранены.",
+      "png": "tools/ui_tutorial_1225_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_45_2"
+    },
+    {
+      "texture_path_id": 3436,
+      "sprite_path_id": 12207,
+      "name": "UI_tutor_46",
+      "text": "Select game data→Сохранения",
+      "png": "tools/ui_tutorial_3436_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_46"
+    },
+    {
+      "texture_path_id": 2214,
+      "sprite_path_id": 11384,
+      "name": "UI_tutor_47_1",
+      "text": "Others→Прочее; Good Kids Mode→Безопасный режим; Resource Pack→Набор ресурсов; Manage→Управление; Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено; CLOSE→ЗАКРЫТЬ",
+      "png": "tools/ui_tutorial_2214_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_47_1"
+    },
+    {
+      "texture_path_id": 3144,
+      "sprite_path_id": 12014,
+      "name": "UI_tutor_47_2",
+      "text": "Others→Прочее; Good Kids Mode→Безопасный режим; Resource Pack→Набор ресурсов; Manage→Управление; Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено",
+      "png": "tools/ui_tutorial_3144_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_47_2"
+    },
+    {
+      "texture_path_id": 1263,
+      "sprite_path_id": 10749,
+      "name": "UI_tutor_47_3",
+      "text": "Others→Прочее; Good Kids Mode→Безопасный режим; Resource Pack→Набор ресурсов; Manage→Управление; Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено; Device Information→Сведения об устройстве; CLOSE→ЗАКРЫТЬ; SEARCH TOYS→ПОИСК УСТРОЙСТВ; EXIT→ВЫЙТИ",
+      "png": "tools/ui_tutorial_1263_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_47_3"
+    },
+    {
+      "texture_path_id": 3512,
+      "sprite_path_id": 12256,
+      "name": "UI_tutor_47_4",
+      "text": "Lovense Settings→Настройки Lovense; IP Address→IP-адрес; Port Address→Порт; Connect→Подключиться; Connection Status→Состояние подключения; Not connected→Не подключено; CLOSE→ЗАКРЫТЬ; Hide→Скрыть; Auto→Авто; Log→История",
+      "png": "tools/ui_tutorial_3512_ru.png",
+      "size": [
+        1048,
+        448
+      ],
+      "resource_key": "locales/en/img/ui_tutor_47_4"
+    },
+    {
+      "texture_path_id": 3205,
+      "sprite_path_id": 12060,
+      "name": "UI_tutor_treasure",
+      "text": "Магические перчатки Ур.2; Requires Charge Up→Требует заряда; Зар.: бонус урона составляет 1.5 / 1.6. Исходные числовые значения сохранены.",
+      "png": "tools/ui_tutorial_3205_texture_ru.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "resource_key": "locales/en/img/ui_tutor_treasure"
+    },
+    {
+      "texture_path_id": 2502,
+      "sprite_path_id": 11578,
+      "name": "UI_tutor_25",
+      "text": "MEMORY→ВОСПОМИНАНИЯ; GALLERY→ГАЛЕРЕЯ; MAKE DIFFERENT CHOICES→ИЗМЕНИТЬ ВЫБОР",
+      "png": "tools/ui_tutorial_2502_ru.png",
+      "size": [
+        1046,
+        448
+      ],
+      "resource_key": "_naughtytime/locales/en/img/ui_tutor_25"
+    },
+    {
+      "texture_path_id": 2219,
+      "name": "win_logo",
+      "size": [
+        2048,
+        1024
+      ],
+      "png": "tools/ui_win_logo_ru.png",
+      "text": "ПОБЕДА",
+      "material_path_id": 555,
+      "atlas_textasset_path_id": 4697,
+      "skeleton_textasset_path_id": 4753,
+      "note": "ПОБ/Е/ДА occupy original W/I/N regions. W/I packing corrected to Rotate270 and extraction to Rotate90 according to Spine MeshAttachment.UpdateUVs rotate:90 mapping; old preview's inverse rotation masked the error. Original atlas, skeleton, material, wings/lights and geometry unchanged. Only three native glyph regions differ. Installed 2026-10-13 at explicit user request; user runtime confirmation pending."
+    },
+    {
+      "texture_path_id": 3608,
+      "sprite_path_id": 12323,
+      "name": "IconDungeonFloorNote_Elite",
+      "size": [
+        204,
+        189
+      ],
+      "png": "tools/ui_image_3608_ru.png",
+      "text": "ЭЛИТА",
+      "resource_key": "icon/icondungeonfloornote_elite",
+      "mapping_source": "globalgamemanagers ResourceManager 13, fileID 4",
+      "alpha_exact": true
+    },
+    {
+      "texture_path_id": 3901,
+      "sprite_path_id": 12514,
+      "name": "IconDungeonFloorNote_Boss",
+      "size": [
+        204,
+        189
+      ],
+      "png": "tools/ui_image_3901_ru.png",
+      "text": "БОСС",
+      "resource_key": "icon/icondungeonfloornote_boss",
+      "mapping_source": "globalgamemanagers ResourceManager 13, fileID 4",
+      "alpha_exact": true
+    }
+  ],
+  "prompts": [
+    {
+      "target": "ui_new_original.png",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case: text-localization. Edit target: the attached 73×30 pixel game UI badge reading NEW. Replace its text with exactly «НОВ.» (Cyrillic Н, О, В and a period); no guillemets in the image. Preserve the original tiny horizontal proportions, tightly spaced tall bold condensed sans-serif lettering, bright pale-yellow/yellow vertical shading, subtle dark outline and shadow. Match the original upper/lower segmentation of the yellow letters. Center text with small clean padding, the original badge's approximate 73:30 aspect ratio. Actual transparent background, not a checkerboard. Text only, no extra decoration, no border rectangle, no English letters. This is a production UI sprite that will be mechanically downsampled to 73×30; prioritize simple crisp legibility at that exact size. Render a sufficiently large transparent version in the same aspect ratio if exact tiny size is not supported."
+    },
+    {
+      "target": "ui_all_sheet_original.png",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit this SINGLE production spritesheet with four square diamond UI icons in a fixed 2×2 grid. Change only the English lettering ALL inside each of the four icons to Cyrillic ВСЕ (three letters В,С,Е). Keep ALL FOUR icons and their exact positions, sizes, silhouette, border thickness, colors and transparency; top-left and bottom-right active blue/white, top-right and bottom-left inactive gray. Preserve grid cell boundaries at 50% of canvas width/height. Keep the entire original square canvas and padding, no cropping, no arranging or enlarging individual icons, no extra symbols. Font bold upright condensed sans serif with the same black drop shadow and white or gray fill as each original. Exact text on every icon: ВСЕ. Genuine transparent background. This sheet will be sliced into its four quadrants and downsampled to 68×67 or98×98; maximize simple crisp legibility."
+    },
+    {
+      "target": "ui_small_labels_sheet_original.png",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case: text-localization. Edit this SINGLE production game UI spritesheet. CRITICAL fixed grid:4 columns ×4 rows on the same square canvas. There are13 separate sprites, rows1–3 full, row4 only column1; the other3 cells must remain EMPTY transparent. Change ONLY in-image English words to exact Russian below; retain every sprite's position, relative scale, colors, outline, frame, icon art and transparent padding. NO rearrangement, no added badges, no text outside the original sprites. Cell coordinates described row,column starting1: (1,1) HIGHEST SCORE→РЕКОРД; (1,2) SCORE→СЧЁТ; (1,3) BOUNS→БОНУС; (1,4) MAX→МАКС.; (2,1) COST→ЦЕНА; (2,2) COST→ЦЕНА; (2,3) COST→ЦЕНА; (2,4) PARTNER→СПУТНИК and SELECT→ВЫБРАТЬ; (3,1) Test Deck→Тест on first line, колоды on second line; (3,2) Test Dungeon→Тест on first line, подзем. on second line; (3,3) 1ST FLOOR→1-й этаж (replace the whole white label text, retain the pictured dungeon creature and background exactly); (3,4) SHOP→ЛАВКА (retain the illustrated shop/sacks/anvil exactly); (4,1) GET!→ВЗЯТО!. Keep exact glyphs, including Ё in СЧЁТ and ВЗЯТО! and period in МАКС. and подзем. Fit text naturally inside existing label areas with same typography family, weight, color and shadow. Preserve crystal illustrations and decorative frames, use condensed lettering when needed. This is not a redesign: change only text. Preserve genuine transparent background and grid. Full square composition unchanged."
+    },
+    {
+      "target": "ui_image_original_1584.png",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "prompt": "Use case:text-localization. Edit target: wide red warning game UI banner on transparent background. Replace only the central English word WARNING with exact Cyrillic ВНИМАНИЕ (8 letters В Н И М А Н И Е). Preserve the original dark-red flat color, very bold condensed angular stencil-style lettering, exact upper and lower horizontal warning bars and diagonal hazard stripes. Retain the very wide horizontal aspect ratio1920:407, composition and transparent background; no black rectangle background, no glow, no new colors, no gradients, no extra symbols. Center the Russian word in the original text area, make it readable as a fast flashing game warning. Entire badge and stripe endpoints remain visible."
+    }
+  ],
+  "intentionally_preserved": [
+    "BraveHearts",
+    "Mango Party",
+    "HANABIFUUSEN",
+    "Game title logos",
+    "Controller labels A/LB/L",
+    "Roman tier numerals I/II/III and EX",
+    "External Lovense English controls (no added explanations)",
+    "Lovense device model names / addresses / ports",
+    "Tomoki sample player name; HE/NE/BE ending codes"
+  ],
+  "remaining": "User runtime checks: tutorial text at actual scale, ПОБЕДА animation, ЭЛИТА/БОСС labels. Two text-free tutorial illustrations remain original. Default Chinese prefab images and unrelated scene-only atlases are not blindly replaced. Dynamic Lv2 is tracked separately in RUNTIME_BACKLOG.md."
+}

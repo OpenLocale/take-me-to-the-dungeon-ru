@@ -5,26 +5,36 @@ import collections
 import hashlib
 import json
 import re
+import shutil
 import struct
 import sys
+import time
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-try:
-    import UnityPy
-except ImportError:
-    UNITYPY_DIR = ROOT / ".tools" / "python"
-    sys.path.insert(0, str(UNITYPY_DIR))
-    import UnityPy  # type: ignore[no-redef]  # noqa: E402
+UNITYPY_DIR = ROOT / ".tools" / "python"
+sys.path.insert(0, str(UNITYPY_DIR))
 
-import localize_ui
+import UnityPy  # noqa: E402
+import localize_ui  # noqa: E402
 
 
-DEFAULT_GAME_ASSET = ROOT / ".local" / "resources.assets.ru-original"
-DEFAULT_OLD_ASSET = ROOT / ".local" / "old-translation.resources.assets"
-DEFAULT_WORK = ROOT / ".local" / "translation.json"
-DEFAULT_OUTPUT = ROOT / "build" / "Take Me To The Dungeon!!_Data" / "resources.assets"
+DEFAULT_GAME_ASSET = Path(
+    r"E:\SteamLibrary\steamapps\common\Take Me To The Dungeon!!"
+    r"\Take Me To The Dungeon!!_Data\resources.assets"
+)
+DEFAULT_OLD_ASSET = (
+    ROOT
+    / ".source"
+    / "old_mod"
+    / "Take Me To The Dungeon!!_Data"
+    / "resources.assets"
+)
+DEFAULT_WORK = ROOT / "translation.json"
+DEFAULT_OUTPUT = ROOT / "release" / "Take Me To The Dungeon!!_Data" / "resources.assets"
 
 CYRILLIC_RE = re.compile(r"[А-Яа-яЁё]")
 FOREIGN_RE = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]")
@@ -179,6 +189,147 @@ def check_work(work: Path) -> tuple[dict, list[str]]:
     return payload, errors
 
 
+def google_translate(text: str) -> str:
+    query = urllib.parse.urlencode(
+        {"client": "gtx", "sl": "en", "tl": "ru", "dt": "t", "q": text}
+    )
+    request = urllib.request.Request(
+        "https://translate.googleapis.com/translate_a/single?" + query,
+        headers={"User-Agent": "Mozilla/5.0"},
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        result = json.loads(response.read())
+    return "".join(part[0] for part in result[0] if part[0])
+
+
+def translate_nonplot(work: Path) -> None:
+    payload = json.loads(work.read_text(encoding="utf-8"))
+    pending = [
+        entry
+        for entry in payload["entries"]
+        if not entry["translation"] and not entry["asset"].startswith("Plot")
+    ]
+    batches = []
+    batch = []
+    batch_size = 0
+    for entry in pending:
+        if batch and batch_size + len(entry["source"]) > 3200:
+            batches.append(batch)
+            batch = []
+            batch_size = 0
+        batch.append(entry)
+        batch_size += len(entry["source"]) + 24
+    if batch:
+        batches.append(batch)
+
+    for batch_index, entries in enumerate(batches, 1):
+        protected = []
+        placeholder_sets = []
+        for entry_index, entry in enumerate(entries):
+            placeholders = token_signature(entry["source"])
+            value = entry["source"]
+            for placeholder_index, placeholder in enumerate(placeholders):
+                value = value.replace(
+                    placeholder,
+                    f"ZXQPH{entry_index:03d}X{placeholder_index:02d}ZXQ",
+                    1,
+                )
+            protected.append(value)
+            placeholder_sets.append(placeholders)
+
+        separators = [f"ZXQSEP{index:04d}ZXQ" for index in range(len(entries) - 1)]
+        combined_parts = []
+        for index, value in enumerate(protected):
+            combined_parts.append(value)
+            if index < len(separators):
+                combined_parts.append("\n" + separators[index] + "\n")
+        translated = google_translate("".join(combined_parts))
+        pattern = r"\s*ZXQSEP\d{4}ZXQ\s*"
+        values = re.split(pattern, translated)
+        if len(values) != len(entries):
+            raise RuntimeError(
+                f"Translation batch {batch_index} split into {len(values)} values; expected {len(entries)}"
+            )
+        for entry_index, (entry, value, placeholders) in enumerate(
+            zip(entries, values, placeholder_sets)
+        ):
+            for placeholder_index, placeholder in enumerate(placeholders):
+                token = f"ZXQPH{entry_index:03d}X{placeholder_index:02d}ZXQ"
+                value = value.replace(token, placeholder)
+            entry["translation"] = value.strip()
+            entry["origin"] = "translated_ui"
+        work.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        print(f"Translated UI batch {batch_index}/{len(batches)} ({len(entries)} strings)")
+        time.sleep(0.15)
+
+
+def translate_plots(work: Path) -> None:
+    payload = json.loads(work.read_text(encoding="utf-8"))
+    by_asset = collections.OrderedDict()
+    for entry in payload["entries"]:
+        if not entry["translation"] and entry["asset"].startswith("Plot"):
+            by_asset.setdefault(entry["asset"], []).append(entry)
+
+    batches = []
+    for asset, asset_entries in by_asset.items():
+        batch = []
+        batch_size = 0
+        for entry in asset_entries:
+            if batch and batch_size + len(entry["source"]) > 3200:
+                batches.append((asset, batch))
+                batch = []
+                batch_size = 0
+            batch.append(entry)
+            batch_size += len(entry["source"]) + 24
+        if batch:
+            batches.append((asset, batch))
+
+    for batch_index, (asset, entries) in enumerate(batches, 1):
+        protected = []
+        placeholder_sets = []
+        for entry_index, entry in enumerate(entries):
+            placeholders = token_signature(entry["source"])
+            value = entry["source"]
+            for placeholder_index, placeholder in enumerate(placeholders):
+                value = value.replace(
+                    placeholder,
+                    f"ZXQPH{entry_index:03d}X{placeholder_index:02d}ZXQ",
+                    1,
+                )
+            protected.append(value)
+            placeholder_sets.append(placeholders)
+
+        separators = [f"ZXQSEP{index:04d}ZXQ" for index in range(len(entries) - 1)]
+        combined_parts = []
+        for index, value in enumerate(protected):
+            combined_parts.append(value)
+            if index < len(separators):
+                combined_parts.append("\n" + separators[index] + "\n")
+        translated = google_translate("".join(combined_parts))
+        values = re.split(r"\s*ZXQSEP\d{4}ZXQ\s*", translated)
+        if len(values) != len(entries):
+            raise RuntimeError(
+                f"Scene batch {asset}/{batch_index} split into {len(values)} values; expected {len(entries)}"
+            )
+        for entry_index, (entry, value, placeholders) in enumerate(
+            zip(entries, values, placeholder_sets)
+        ):
+            for placeholder_index, placeholder in enumerate(placeholders):
+                token = f"ZXQPH{entry_index:03d}X{placeholder_index:02d}ZXQ"
+                value = value.replace(token, placeholder)
+            entry["translation"] = value.strip()
+            entry["origin"] = "translated_scene"
+        work.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        print(
+            f"Translated scene batch {batch_index}/{len(batches)}: {asset} ({len(entries)} strings)"
+        )
+        time.sleep(0.15)
+
+
 def build(game_asset: Path, work: Path, output: Path) -> None:
     payload, errors = check_work(work)
     if errors:
@@ -226,7 +377,9 @@ def build(game_asset: Path, work: Path, output: Path) -> None:
     output.write_bytes(serialized_files[0].save())
     print(
         f"Built {output} with {changed_lines} translated lines across {changed} TextAssets; "
-        f"localized {ui_labels} UI labels across {ui_objects} objects"
+        f"localized {ui_labels} UI labels across {ui_objects} objects; "
+        f"{len(localize_ui.UI_TEXTURES)} UI textures; deck statistics line spacing; "
+        f"{len(localize_ui.TREASURE_DESCRIPTION_OBJECTS)} treasure descriptions autosizing"
     )
 
 
@@ -249,7 +402,9 @@ def verify_built(game_asset: Path, work: Path, built_asset: Path) -> None:
     expected = len(payload["entries"])
     print(
         f"Verified readable build: {built_cyrillic} Cyrillic TextAssets; "
-        f"{expected} unique working strings; {len(localize_ui.UI_TEXT_OBJECTS)} localized UI labels"
+        f"{expected} unique working strings; {len(localize_ui.UI_TEXT_OBJECTS)} localized UI labels; "
+        f"{len(localize_ui.UI_TEXTURES)} localized UI textures; deck statistics line spacing; "
+        f"{len(localize_ui.TREASURE_DESCRIPTION_OBJECTS)} treasure descriptions autosizing"
     )
 
 
@@ -272,6 +427,12 @@ def main() -> None:
 
     check_parser = subparsers.add_parser("check")
     check_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
+
+    translate_ui_parser = subparsers.add_parser("translate-ui")
+    translate_ui_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
+
+    translate_plot_parser = subparsers.add_parser("translate-plots")
+    translate_plot_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
 
     font_inputs_parser = subparsers.add_parser("font-inputs")
     font_inputs_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
@@ -299,6 +460,10 @@ def main() -> None:
             print("\n".join(errors))
             raise SystemExit(1)
         print("Integrity check passed")
+    elif args.command == "translate-ui":
+        translate_nonplot(args.work)
+    elif args.command == "translate-plots":
+        translate_plots(args.work)
     elif args.command == "font-inputs":
         export_font_inputs(args.work, args.characters_output)
     elif args.command == "build":
