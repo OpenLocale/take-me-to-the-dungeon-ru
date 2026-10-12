@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import re
 import struct
@@ -24,7 +25,16 @@ UI_TEXT_OBJECTS = {
     226875: ("Auto", "Авто"),
     239535: ("Log", "История"),
     270905: ("Hide", "Скрыть"),
+    256833: ("SKIP →", "Пропустить →"),
+    283053: ("SKIP →", "Пропустить →"),
+    277681: ("Fast Forward", "Ускорить"),
 }
+
+# RB-026: both skip labels stretch over the original 8.91%-wide button.
+# At native1920 its width171 is less than181.9 for the Russian28pt text.
+# TMP may reduce to26pt; preserve the button, arrow and original maximum.
+SKIP_TEXT_OBJECTS = (256833, 283053)
+SKIP_FONT_BOUNDS = (18.0, 28.0)
 
 # DeckDetailUIViewController / Right Panel / Attr Panel / Txt Statictis.
 # DrawPair overlays the number using <line-height=0%><br>; extra spacing
@@ -46,9 +56,15 @@ DECK_HEADING_FORMAT = (
 # RB-012: literal 16605 is referenced only by DungeonButtonUIView.
 # Both UTF-8 strings are 18 bytes; {0} is the numeric floor, {1} its name.
 DUNGEON_FLOOR_FORMAT = (b'{0}st Floor    {1}', 'Этаж {0}   {1}'.encode('utf-8'))
+# RB-024: literal16555 is only DungeonOption's current-floor value.
+# The separate translated caption already says "Текущий этаж"; keep only
+# the number. Two spaces preserve the5-byte literal without visible/F.
+# Its bytes also prefix literal16556, so patch by exact offset, not replace.
+CURRENT_FLOOR_FORMAT = (b'{0}/F', b'{0}  ')
 RUNTIME_METADATA_REPLACEMENTS = (
     (169765, *DECK_HEADING_FORMAT),
     (612488, *DUNGEON_FLOOR_FORMAT),
+    (610625, *CURRENT_FLOOR_FORMAT),
 )
 
 # TreasureButtonUIView / InnerPanel / Txt Description in its six prefab copies.
@@ -61,10 +77,19 @@ TREASURE_AUTOSIZING_OFFSET = 304
 TREASURE_FONT_BOUNDS_OFFSET = 308
 TREASURE_FONT_BOUNDS = (17.0, 26.0)
 
-# RB-015: only DungeonTreasureShop/BuyTreasure prefab copies. Keep the
+# RB-021: the rotated186.04x39.28 requirement banner is narrower than
+# "Сосредоточение" at24pt (194 units). Fit its full text without renaming
+# Focus, changing the ribbon or expanding into adjacent UI. Two14pt Noto
+# line boxes total38.14; short requirements may keep the original24pt.
+TREASURE_REQUIREMENT_OBJECTS = (228630, 238464, 247491, 249489, 258848, 277192)
+TREASURE_REQUIREMENT_FONT_BOUNDS = (14.0, 24.0)
+
+# RB-015/RB-028: all six TreasureButtonUIView copies, including its generic
+# prefab and inventory/selection/resource-list views. Do not change the
+# similarly named NormalResourceUIView field. Keep the
 # description's 116.92-high area and text size, reserve a separate footer.
 # Description bottom=-180; new owned-field top=-188.1, gap=8.1 units.
-SHOP_OWNED_RECTS = (208594, 197033)
+SHOP_OWNED_RECTS = (208594, 197033, 211405, 213182, 215770, 221205)
 SHOP_OWNED_SHIFT = 22.0
 SHOP_OWNED_HEIGHT = 26.0  # One 18pt Noto line needs 24.52 units.
 
@@ -86,6 +111,43 @@ LOADING_TEXT_ASSETS = {
     5010: ("Loading", 10080, "audit/ui_loading_ru.json"),
     5030: ("Loading.atlas", 281, "audit/ui_loading_ru.atlas"),
 }
+
+# RB-025: ПО / БЕ / ДА use the three original WIN meshes. Wider horizontal
+# quads reserve equal gaps; all Y coordinates, UVs and animation stay exact.
+WIN_TEXT_ASSET = (4753, "win_logo", 9889, "audit/ui_win_ru.json")
+
+
+def patch_win_geometry(env) -> None:
+    path_id, name, source_size, filename = WIN_TEXT_ASSET
+    obj = next((o for o in env.objects if o.path_id == path_id), None)
+    if obj is None or obj.type.name != "TextAsset":
+        raise RuntimeError("WIN Spine TextAsset is missing")
+    data = obj.read()
+    source = data.m_Script
+    if isinstance(source, bytes):
+        source = source.decode("utf-8")
+    if data.m_Name != name or len(source.encode("utf-8")) != source_size:
+        raise RuntimeError("WIN Spine differs from the supported build")
+    original = json.loads(source)
+    translated = (ROOT / filename).read_text(encoding="utf-8")
+    result = json.loads(translated)
+    if original["skeleton"]["spine"] != "4.0.61":
+        raise RuntimeError("Unexpected WIN Spine version")
+    restored = copy.deepcopy(result)
+    for letter in ("W", "I", "N"):
+        old = original["skins"][0]["attachments"][letter][letter]
+        new = restored["skins"][0]["attachments"][letter][letter]
+        vertices = new["vertices"]
+        if len(vertices) != 8 or vertices[1::2] != old["vertices"][1::2]:
+            raise RuntimeError(f"WIN {letter} vertical geometry changed")
+        if abs(new["width"] - (max(vertices[::2]) - min(vertices[::2]))) > 0.001:
+            raise RuntimeError(f"WIN {letter} mesh width differs")
+        new["vertices"] = old["vertices"]
+        new["width"] = old["width"]
+    if restored != original:
+        raise RuntimeError("WIN changes extend beyond three horizontal mesh widths")
+    data.m_Script = translated
+    data.save()
 
 
 def patch_ui_textures(env) -> None:
@@ -188,16 +250,37 @@ def patch_treasure_descriptions(env) -> None:
         obj.set_raw_data(bytes(raw))
 
 
+def patch_treasure_requirements(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    for path_id in TREASURE_REQUIREMENT_OBJECTS:
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "MonoBehaviour":
+            raise RuntimeError(f"Treasure requirement TMP {path_id} is missing")
+        raw = bytearray(obj.get_raw_data())
+        if len(raw) != 512 or text_at_offset(raw) != "蓄力限定":
+            raise RuntimeError(f"Treasure requirement TMP {path_id} layout differs")
+        # Its four-character source text occupies four more bytes than 描述.
+        if struct.unpack_from("<ff", raw, TREASURE_FONT_SIZE_OFFSET + 4) != (24.0, 24.0):
+            raise RuntimeError(f"Treasure requirement TMP {path_id} font size differs")
+        if struct.unpack_from("<i", raw, TREASURE_AUTOSIZING_OFFSET + 4)[0] != 0:
+            raise RuntimeError(f"Treasure requirement TMP {path_id} autosizing differs")
+        if struct.unpack_from("<ff", raw, TREASURE_FONT_BOUNDS_OFFSET + 4) != (18.0, 72.0):
+            raise RuntimeError(f"Treasure requirement TMP {path_id} font bounds differ")
+        struct.pack_into("<i", raw, TREASURE_AUTOSIZING_OFFSET + 4, 1)
+        struct.pack_into("<ff", raw, TREASURE_FONT_BOUNDS_OFFSET + 4, *TREASURE_REQUIREMENT_FONT_BOUNDS)
+        obj.set_raw_data(bytes(raw))
+
+
 def patch_runtime_metadata(source: Path, output: Path) -> None:
     data = source.read_bytes()
     if len(data) != DECK_METADATA_SIZE or data[:8] != struct.pack('<II', 0xFAB11BAF, 31):
         raise RuntimeError('UI metadata differs from Steam build 25319640')
     for offset, original, translated in RUNTIME_METADATA_REPLACEMENTS:
-        if len(original) != len(translated) or data.count(original) != 1:
-            raise RuntimeError('Expected one size-preserving UI format')
+        if len(original) != len(translated):
+            raise RuntimeError('Expected a size-preserving UI format')
         if data[offset:offset + len(original)] != original:
             raise RuntimeError(f'Unexpected UI metadata format at {offset}')
-        data = data.replace(original, translated, 1)
+        data = data[:offset] + translated + data[offset + len(original):]
     if source.resolve() == output.resolve():
         raise RuntimeError('Write patched metadata to a separate build file')
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -211,9 +294,9 @@ def verify_runtime_metadata(source: Path, output: Path) -> None:
     if len(data) != DECK_METADATA_SIZE or len(result) != len(data):
         raise RuntimeError('Unexpected UI metadata size')
     for offset, original, translated in RUNTIME_METADATA_REPLACEMENTS:
-        if data.count(original) != 1 or data[offset:offset + len(original)] != original:
+        if len(original) != len(translated) or data[offset:offset + len(original)] != original:
             raise RuntimeError('Unexpected UI metadata source')
-        data = data.replace(original, translated, 1)
+        data = data[:offset] + translated + data[offset + len(original):]
     if result != data:
         raise RuntimeError('Metadata changes extend beyond the scoped UI formats')
     print('Verified scoped UI formats; all other metadata bytes unchanged')
@@ -302,6 +385,15 @@ def patch_environment(env) -> tuple[int, int]:
                 f"Expected one serialized {source!r} in object {obj.path_id}, "
                 f"found {raw.count(marker)}"
             )
+        if obj.path_id in SKIP_TEXT_OBJECTS:
+            if len(raw) != 508 or text_at_offset(raw) != source:
+                raise RuntimeError(f"Skip TMP {obj.path_id} layout differs")
+            if struct.unpack_from("<ffiiff", raw, 292) != (28.0, 28.0, 400, 0, 18.0, 72.0):
+                raise RuntimeError(f"Skip TMP {obj.path_id} font layout differs")
+            raw = bytearray(raw)
+            struct.pack_into("<i", raw, 304, 1)
+            struct.pack_into("<ff", raw, 308, *SKIP_FONT_BOUNDS)
+            raw = bytes(raw)
         obj.set_raw_data(raw.replace(marker, serialized_string(translation), 1))
         changed_objects += 1
         changed_fields += 1
@@ -312,8 +404,10 @@ def patch_environment(env) -> tuple[int, int]:
         )
     patch_deck_statistics(env)
     patch_treasure_descriptions(env)
+    patch_treasure_requirements(env)
     patch_ui_textures(env)
     patch_loading_animation(env)
+    patch_win_geometry(env)
     patch_shop_footers(env)
     return changed_objects, changed_fields
 
@@ -345,6 +439,16 @@ def verify_environment(env) -> None:
             script = script.decode("utf-8")
         if data.m_Name != name or script != (ROOT / filename).read_text(encoding="utf-8"):
             raise RuntimeError(f"Loading TextAsset {path_id} differs from localized source")
+    path_id, name, _, filename = WIN_TEXT_ASSET
+    obj = objects.get(path_id)
+    if obj is None or obj.type.name != "TextAsset":
+        raise RuntimeError("WIN Spine TextAsset is missing")
+    data = obj.read()
+    script = data.m_Script
+    if isinstance(script, bytes):
+        script = script.decode("utf-8")
+    if data.m_Name != name or script != (ROOT / filename).read_text(encoding="utf-8"):
+        raise RuntimeError("WIN Spine differs from localized source")
     for path_id in SHOP_OWNED_RECTS:
         obj = objects.get(path_id)
         if obj is None or obj.type.name != "RectTransform":
@@ -373,6 +477,19 @@ def verify_environment(env) -> None:
             raise RuntimeError(f"Treasure description TMP {path_id} is not autosizing")
         if struct.unpack_from("<ff", raw, TREASURE_FONT_BOUNDS_OFFSET) != TREASURE_FONT_BOUNDS:
             raise RuntimeError(f"Treasure description TMP {path_id} font bounds differ")
+    for path_id in TREASURE_REQUIREMENT_OBJECTS:
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "MonoBehaviour":
+            raise RuntimeError(f"Treasure requirement TMP {path_id} is missing")
+        raw = obj.get_raw_data()
+        if len(raw) != 512 or text_at_offset(raw) != "蓄力限定":
+            raise RuntimeError(f"Treasure requirement TMP {path_id} layout differs")
+        if struct.unpack_from("<ff", raw, TREASURE_FONT_SIZE_OFFSET + 4) != (24.0, 24.0):
+            raise RuntimeError(f"Treasure requirement TMP {path_id} font size changed")
+        if struct.unpack_from("<i", raw, TREASURE_AUTOSIZING_OFFSET + 4)[0] != 1:
+            raise RuntimeError(f"Treasure requirement TMP {path_id} is not autosizing")
+        if struct.unpack_from("<ff", raw, TREASURE_FONT_BOUNDS_OFFSET + 4) != TREASURE_REQUIREMENT_FONT_BOUNDS:
+            raise RuntimeError(f"Treasure requirement TMP {path_id} font bounds differ")
     for path_id, (source, translation) in UI_TEXT_OBJECTS.items():
         obj = objects.get(path_id)
         if obj is None:
@@ -384,6 +501,12 @@ def verify_environment(env) -> None:
             raise RuntimeError(
                 f"Expected one localized label {translation!r} in object {path_id}"
             )
+        if path_id in SKIP_TEXT_OBJECTS:
+            delta = len(serialized_string(translation)) - len(serialized_string(source))
+            if text_at_offset(raw) != translation or struct.unpack_from("<i", raw, 304 + delta)[0] != 1:
+                raise RuntimeError(f"Skip TMP {path_id} is not autosizing")
+            if struct.unpack_from("<ff", raw, 308 + delta) != SKIP_FONT_BOUNDS:
+                raise RuntimeError(f"Skip TMP {path_id} font bounds differ")
 
 
 def patch(asset: Path, output: Path) -> None:
