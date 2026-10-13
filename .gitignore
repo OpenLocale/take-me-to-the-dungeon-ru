@@ -14,7 +14,8 @@ tools/ui_*_ru_v*.png
 # Generated builds and releases
 /build/
 /dist/
-/release/
+/release/*
+!/release/README.txt
 /FontBundle/
 *.zip
 *.7z
