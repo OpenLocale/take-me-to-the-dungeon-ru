@@ -36,6 +36,12 @@ UI_TEXT_OBJECTS = {
 SKIP_TEXT_OBJECTS = (256833, 283053)
 SKIP_FONT_BOUNDS = (18.0, 28.0)
 
+# RB-030: DungeonShop / Buy Dungeon Limited Card has a250x50 label at25pt.
+# Shorten its corpus text, then let TMP reduce it slightly (about24pt).
+# Preserve the card/button geometry and original maximum; no global font edit.
+DUNGEON_LIMITED_CARD_OBJECT = 228368
+DUNGEON_LIMITED_CARD_FONT_BOUNDS = (18.0, 25.0)
+
 # DeckDetailUIViewController / Right Panel / Attr Panel / Txt Statictis.
 # DrawPair overlays the number using <line-height=0%><br>; extra spacing
 # moves it below its label. Keep this field at zero, not the global font.
@@ -66,6 +72,19 @@ RUNTIME_METADATA_REPLACEMENTS = (
     (612488, *DUNGEON_FLOOR_FORMAT),
     (610625, *CURRENT_FLOOR_FORMAT),
 )
+
+# RB-031: scoped visible level literals in build25319640. Native references:
+# ModSetting hover formats1772/6262/16475; ModBase.GetDisplayData6261/16475;
+# TreasureVariety.GetFullName16475. Resource/animation names and ToString stay.
+# Russian needs four extra UTF8 bytes. Append only these strings to the literal
+# pool and shift subsequent header offsets; all indices/payloads stay intact.
+LEVEL_METADATA_LITERALS = (
+    (1772, b'<size=85%>Lv{0}: {1}</size>', '<size=85%>Ур. {0}: {1}</size>'.encode('utf-8')),
+    (6261, b'Lv{0}', 'Ур. {0}'.encode('utf-8')),
+    (6262, b'Lv{0}: {1}</size>', 'Ур. {0}: {1}</size>'.encode('utf-8')),
+    (16475, b'{0} Lv{1}', '{0} ур. {1}'.encode('utf-8')),
+)
+METADATA_LITERAL_LAYOUT = (256, 135768, 136024, 480208)
 
 # TreasureButtonUIView / InnerPanel / Txt Description in its six prefab copies.
 # Fixed 258.05 x 116.92 area: allow TMP to fit long descriptions, never grow
@@ -114,7 +133,7 @@ LOADING_TEXT_ASSETS = {
 
 # RB-025: ПО / БЕ / ДА use the three original WIN meshes. Wider horizontal
 # quads reserve equal gaps; all Y coordinates, UVs and animation stay exact.
-WIN_TEXT_ASSET = (4753, "win_logo", 9889, "audit/ui_win_ru.json")
+WIN_TEXT_ASSET = (4753, "win_logo", 9889, "audit/ui_win_ru_v3.json")
 
 
 def patch_win_geometry(env) -> None:
@@ -271,35 +290,75 @@ def patch_treasure_requirements(env) -> None:
         obj.set_raw_data(bytes(raw))
 
 
-def patch_runtime_metadata(source: Path, output: Path) -> None:
-    data = source.read_bytes()
+def patch_dungeon_limited_card_label(env) -> None:
+    obj = next((o for o in env.objects if o.path_id == DUNGEON_LIMITED_CARD_OBJECT), None)
+    if obj is None or obj.type.name != "MonoBehaviour":
+        raise RuntimeError("Dungeon-limited card label is missing")
+    raw = bytearray(obj.get_raw_data())
+    if len(raw) != 520 or text_at_offset(raw) != "地城限定卡牌":
+        raise RuntimeError("Dungeon-limited card TMP layout differs")
+    if struct.unpack_from("<ffiiff", raw, 304) != (25.0, 25.0, 400, 0, 18.0, 72.0):
+        raise RuntimeError("Dungeon-limited card font layout differs")
+    struct.pack_into("<i", raw, 316, 1)
+    struct.pack_into("<ff", raw, 320, *DUNGEON_LIMITED_CARD_FONT_BOUNDS)
+    obj.set_raw_data(bytes(raw))
+
+
+def translated_runtime_metadata(data: bytes) -> bytes:
     if len(data) != DECK_METADATA_SIZE or data[:8] != struct.pack('<II', 0xFAB11BAF, 31):
         raise RuntimeError('UI metadata differs from Steam build 25319640')
+    original_data = data
     for offset, original, translated in RUNTIME_METADATA_REPLACEMENTS:
         if len(original) != len(translated):
             raise RuntimeError('Expected a size-preserving UI format')
         if data[offset:offset + len(original)] != original:
             raise RuntimeError(f'Unexpected UI metadata format at {offset}')
         data = data[:offset] + translated + data[offset + len(original):]
+
+    if struct.unpack_from('<IIII', data, 8) != METADATA_LITERAL_LAYOUT:
+        raise RuntimeError('Unexpected metadata literal-pool layout')
+    table_offset, table_size, pool_offset, pool_size = METADATA_LITERAL_LAYOUT
+    pool_end = pool_offset + pool_size
+    result = bytearray(data)
+    added = bytearray()
+    for index, original, translated in LEVEL_METADATA_LITERALS:
+        entry = table_offset + index * 8
+        if entry + 8 > table_offset + table_size:
+            raise RuntimeError('Level literal index lies outside its table')
+        length, offset = struct.unpack_from('<II', data, entry)
+        if length != len(original) or offset + length > pool_size or data[pool_offset + offset:pool_offset + offset + length] != original:
+            raise RuntimeError(f'Unexpected level literal {index}')
+        struct.pack_into('<II', result, entry, len(translated), pool_size + len(added))
+        added.extend(translated)
+    # Preserve every subsequent table's original4/8/16-byte alignment.
+    added.extend(b'\0' * (-len(added) % 16))
+    result[pool_end:pool_end] = added
+    # The supported v31 header has31 (offset, byte size) pairs before256.
+    for field in range(8, table_offset, 8):
+        offset, size = struct.unpack_from('<II', original_data, field)
+        if size and (offset < table_offset or offset + size > len(original_data)):
+            raise RuntimeError('Unsupported metadata header range')
+        if offset >= pool_end:
+            struct.pack_into('<I', result, field, offset + len(added))
+    struct.pack_into('<I', result, 20, pool_size + len(added))
+    return bytes(result)
+
+
+def patch_runtime_metadata(source: Path, output: Path) -> None:
     if source.resolve() == output.resolve():
         raise RuntimeError('Write patched metadata to a separate build file')
+    data = translated_runtime_metadata(source.read_bytes())
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(data)
-    print(f'Patched {len(RUNTIME_METADATA_REPLACEMENTS)} scoped UI formats in {output}; byte size preserved')
+    print(f'Patched {len(RUNTIME_METADATA_REPLACEMENTS) + len(LEVEL_METADATA_LITERALS)} scoped UI formats in {output}; level strings appended to literal pool')
 
 
 def verify_runtime_metadata(source: Path, output: Path) -> None:
-    data = source.read_bytes()
+    expected = translated_runtime_metadata(source.read_bytes())
     result = output.read_bytes()
-    if len(data) != DECK_METADATA_SIZE or len(result) != len(data):
-        raise RuntimeError('Unexpected UI metadata size')
-    for offset, original, translated in RUNTIME_METADATA_REPLACEMENTS:
-        if len(original) != len(translated) or data[offset:offset + len(original)] != original:
-            raise RuntimeError('Unexpected UI metadata source')
-        data = data[:offset] + translated + data[offset + len(original):]
-    if result != data:
+    if result != expected:
         raise RuntimeError('Metadata changes extend beyond the scoped UI formats')
-    print('Verified scoped UI formats; all other metadata bytes unchanged')
+    print('Verified scoped UI formats and literal-pool relocation; all other metadata payloads retained')
 
 
 def serialized_string(value: str) -> bytes:
@@ -405,6 +464,7 @@ def patch_environment(env) -> tuple[int, int]:
     patch_deck_statistics(env)
     patch_treasure_descriptions(env)
     patch_treasure_requirements(env)
+    patch_dungeon_limited_card_label(env)
     patch_ui_textures(env)
     patch_loading_animation(env)
     patch_win_geometry(env)
@@ -507,6 +567,16 @@ def verify_environment(env) -> None:
                 raise RuntimeError(f"Skip TMP {path_id} is not autosizing")
             if struct.unpack_from("<ff", raw, 308 + delta) != SKIP_FONT_BOUNDS:
                 raise RuntimeError(f"Skip TMP {path_id} font bounds differ")
+    obj = objects.get(DUNGEON_LIMITED_CARD_OBJECT)
+    if obj is None or obj.type.name != "MonoBehaviour":
+        raise RuntimeError("Dungeon-limited card label is missing")
+    raw = obj.get_raw_data()
+    if len(raw) != 520 or text_at_offset(raw) != "地城限定卡牌":
+        raise RuntimeError("Dungeon-limited card TMP layout differs")
+    if struct.unpack_from("<ff", raw, 304) != (25.0, 25.0) or struct.unpack_from("<i", raw, 316)[0] != 1:
+        raise RuntimeError("Dungeon-limited card label is not autosizing")
+    if struct.unpack_from("<ff", raw, 320) != DUNGEON_LIMITED_CARD_FONT_BOUNDS:
+        raise RuntimeError("Dungeon-limited card font bounds differ")
 
 
 def patch(asset: Path, output: Path) -> None:
