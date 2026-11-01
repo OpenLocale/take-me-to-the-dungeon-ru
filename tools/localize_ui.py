@@ -124,8 +124,8 @@ MINI_RESOURCE_GRIDS = {
     274773: ((135., 138., 15., 10.), 83, (135., 168., 15., 10.), 83),
     273282: ((135., 225., 26., 10.), 130, (135., 255., 26., 10.), 130),
     274524: ((135., 225., 26., 10.), 130, (135., 255., 26., 10.), 130),
-    276019: ((100., 160., 15., 10.), 40, (100., 160., 28., 10.), 17),
-    231322: ((100., 160., 15., 10.), 40, (100., 160., 28., 10.), 17),
+    276019: ((100., 160., 15., 10.), 40, (100., 160., 26., 10.), 17),
+    231322: ((100., 160., 15., 10.), 40, (100., 160., 26., 10.), 17),
 }
 # Separate decorative backgrounds: cover taller captions without changing
 # the recommendation layout or its native four-column height calculation.
@@ -592,7 +592,8 @@ def patch_visual_qa_layout(env) -> None:
                 or (rect.m_AnchorMin.x, rect.m_AnchorMin.y, rect.m_AnchorMax.x, rect.m_AnchorMax.y) != (0., 0., 1., 1.)
                 or (rect.m_Pivot.x, rect.m_Pivot.y) != (.5, .5)):
             raise RuntimeError(f"Recommendation background {path_id} geometry differs")
-        rect.m_SizeDelta.y, rect.m_AnchoredPosition.y = 18., -9.
+        rect.m_SizeDelta.x, rect.m_SizeDelta.y = 0., 18.
+        rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y = 0., -9.
         rect.save()
     for path_id, (source, target) in MARKET_RESOURCE_OFFSETS.items():
         rect = objects[path_id].read()
@@ -632,7 +633,7 @@ def verify_visual_qa_layout(objects) -> None:
             raise RuntimeError(f"Mini resource grid {path_id} sizing differs")
     for path_id in RECOMMENDATION_BACKGROUNDS:
         rect = objects[path_id].read()
-        if (rect.m_SizeDelta.x, rect.m_SizeDelta.y, rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y) != (-22., 18., 4., -9.):
+        if (rect.m_SizeDelta.x, rect.m_SizeDelta.y, rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y) != (0., 18., 0., -9.):
             raise RuntimeError(f"Recommendation background {path_id} geometry differs")
     for path_id, (_, target) in MARKET_RESOURCE_OFFSETS.items():
         if not math.isclose(objects[path_id].read().m_AnchoredPosition.y, target, abs_tol=.0001):
