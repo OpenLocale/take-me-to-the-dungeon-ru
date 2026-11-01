@@ -30,6 +30,37 @@ UI_TEXT_OBJECTS = {
     277681: ("Fast Forward", "Ускорить"),
 }
 
+# RB-037 feature/ui-typography: primary action buttons only, with existing
+# autosizing and at least210x48 native space. Preserve UpperCase16; add Bold1.
+# Narrow controls, prose, card text, counters and other labels stay untouched.
+EMPHASIS_BUTTON_GROUPS = {
+    ("儲存", 30.0, 33.0, 18.0, 30.0): (250599,),
+    ("取消", 30.0, 33.0, 18.0, 30.0): (227684, 229707, 229708, 232566, 239293, 240439, 246568, 252695, 255999, 257186, 257189, 259567, 260055, 262932, 265136, 266543, 271094, 276435),
+    ("合成", 30.0, 33.0, 18.0, 30.0): (257161, 257164),
+    ("新遊戲", 32.0, 32.0, 12.0, 32.0): (258748,),
+    ("畫廊", 32.0, 32.0, 12.0, 32.0): (232039,),
+    ("確定", 30.0, 33.0, 18.0, 30.0): (226712, 226713, 232532, 233394, 245437, 250174, 250175, 252818, 259568, 264310, 271801, 276624),
+    ("繼續遊戲", 32.0, 32.0, 12.0, 32.0): (243470,),
+    ("設定", 32.0, 32.0, 12.0, 32.0): (261698,),
+    ("購買", 30.0, 33.0, 18.0, 30.0): (227243, 250988, 266564, 280073, 281745),
+    ("返回標題", 30.0, 33.0, 18.0, 30.0): (229153,),
+    ("進入", 30.0, 33.0, 18.0, 30.0): (241492,),
+    ("選擇", 30.0, 33.0, 18.0, 30.0): (236707, 243832, 270740),
+    ("關閉", 30.0, 33.0, 18.0, 30.0): (
+        227707, 228383, 229144, 229145, 229146, 229231, 230322, 230688,
+        234135, 234136, 234137, 234138, 234139, 234140, 234141, 234142,
+        234143, 234144, 235316, 237300, 237418, 237560, 237841, 238043,
+        238432, 239435, 243168, 245929, 248517, 248518, 248519, 248520,
+        248521, 248522, 248523, 248524, 255515, 258144, 258710, 258916,
+        260189, 262541, 262931, 264570, 264865, 265223, 268306, 269683,
+        273246, 273247, 273248, 275866, 277631, 279831, 280266,
+    ),
+    ("離開", 30.0, 33.0, 18.0, 30.0): (243695, 250440, 257225, 257226, 261580, 268986),
+    ("離開", 32.0, 32.0, 12.0, 32.0): (266466,),
+}
+EMPHASIS_BUTTONS = {path_id: spec for spec, ids in EMPHASIS_BUTTON_GROUPS.items() for path_id in ids}
+EMPHASIS_BUTTON_PADDING_RECTS = (196544, 199942)
+
 # RB-026: both skip labels stretch over the original 8.91%-wide button.
 # At native1920 its width171 is less than181.9 for the Russian28pt text.
 # TMP may reduce to26pt; preserve the button, arrow and original maximum.
@@ -370,6 +401,31 @@ def patch_resource_name(env) -> None:
     rect.save()
 
 
+def patch_ui_button_emphasis(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    for path_id, (text, size, base, low, high) in EMPHASIS_BUTTONS.items():
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "MonoBehaviour":
+            raise RuntimeError(f"Emphasis button {path_id} is missing")
+        raw = bytearray(obj.get_raw_data())
+        delta = ((len(text.encode("utf-8")) + 3) & ~3) - 8
+        if len(raw) != 508 + delta or text_at_offset(raw) != text:
+            raise RuntimeError(f"Emphasis button {path_id} text/layout differs")
+        if struct.unpack_from("<ffiiffi", raw, 292 + delta) != (size, base, 400, 1, low, high, 16):
+            raise RuntimeError(f"Emphasis button {path_id} font/style differs")
+        struct.pack_into("<i", raw, 316 + delta, 17)
+        obj.set_raw_data(bytes(raw))
+    for path_id in EMPHASIS_BUTTON_PADDING_RECTS:
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "RectTransform":
+            raise RuntimeError("Settings button text rectangle is missing")
+        rect = obj.read()
+        if (rect.m_SizeDelta.x, rect.m_SizeDelta.y) != (0.0, 0.0):
+            raise RuntimeError("Settings button text rectangle differs")
+        rect.m_SizeDelta.x = -24.0
+        rect.save()
+
+
 def patch_battle_dialog_contrast(env) -> None:
     objects = {obj.path_id: obj for obj in env.objects}
     for path_id, (font, material) in BATTLE_DIALOG_TEXTS.items():
@@ -551,6 +607,7 @@ def patch_environment(env) -> tuple[int, int]:
     patch_dungeon_limited_card_label(env)
     patch_resource_name(env)
     patch_battle_dialog_contrast(env)
+    patch_ui_button_emphasis(env)
     patch_ui_textures(env)
     patch_room_shop_icon(env)
     patch_loading_animation(env)
@@ -697,6 +754,23 @@ def verify_environment(env) -> None:
             raise RuntimeError(f"Battle dialog TMP {path_id} color/layout differs")
         if struct.unpack_from("<iqiq", raw, 96) != (0, font, 0, material):
             raise RuntimeError(f"Battle dialog TMP {path_id} font/material changed")
+    for path_id, (text, size, base, low, high) in EMPHASIS_BUTTONS.items():
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "MonoBehaviour":
+            raise RuntimeError(f"Emphasis button {path_id} is missing")
+        raw = obj.get_raw_data()
+        delta = ((len(text.encode("utf-8")) + 3) & ~3) - 8
+        if len(raw) != 508 + delta or text_at_offset(raw) != text:
+            raise RuntimeError(f"Emphasis button {path_id} text/layout differs")
+        if struct.unpack_from("<ffiiffi", raw, 292 + delta) != (size, base, 400, 1, low, high, 17):
+            raise RuntimeError(f"Emphasis button {path_id} style or sizing differs")
+    for path_id in EMPHASIS_BUTTON_PADDING_RECTS:
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "RectTransform":
+            raise RuntimeError("Settings button text rectangle is missing")
+        rect = obj.read()
+        if (rect.m_SizeDelta.x, rect.m_SizeDelta.y) != (-24.0, 0.0):
+            raise RuntimeError("Settings button text padding differs")
 
 
 def patch(asset: Path, output: Path) -> None:
