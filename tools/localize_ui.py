@@ -42,6 +42,32 @@ SKIP_FONT_BOUNDS = (18.0, 28.0)
 DUNGEON_LIMITED_CARD_OBJECT = 228368
 DUNGEON_LIMITED_CARD_FONT_BOUNDS = (18.0, 25.0)
 
+# RB-033: the full-size NormalResourceUIView shows rune/material names.
+# Its230x40 single-line title stops shrinking at22pt, clipping Speedshift.
+# Reserve two Noto lines without moving the icon or description; short names
+# retain the original30pt ceiling. The lower hover title is a different field.
+RESOURCE_NAME_OBJECT = 257578
+RESOURCE_NAME_RECT = 195681
+RESOURCE_NAME_FONT_BOUNDS = (18.0, 30.0)
+RESOURCE_NAME_SIZE = (258.0, 56.0)
+RESOURCE_NAME_Y = -30.0
+
+# RB-034: icon/roomshop exposes both Texture1930 and Sprite11198.
+# Reuse the translated ui02_icon_shop PNG and matching Sprite11570 geometry;
+# keep RoomShop resource IDs/names, so dynamic map/entry lookups still work.
+ROOM_SHOP_SPRITE = 11198
+LOCALIZED_SHOP_SPRITE = 11570
+
+# RB-036: both sides' normal/magic battle speech fields are white on white.
+# Set only their vertex face color; keep fonts, outline materials and alpha.
+BATTLE_DIALOG_TEXTS = {
+    249573: (225370, 460),
+    273892: (225370, 460),
+    229696: (225372, 497),
+    276224: (225372, 497),
+}
+BATTLE_DIALOG_COLOR = (38, 38, 38, 255)
+
 # DeckDetailUIViewController / Right Panel / Attr Panel / Txt Statictis.
 # DrawPair overlays the number using <line-height=0%><br>; extra spacing
 # moves it below its label. Keep this field at zero, not the global font.
@@ -187,6 +213,24 @@ def patch_ui_textures(env) -> None:
         texture.save()
 
 
+def patch_room_shop_icon(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    target = objects.get(ROOM_SHOP_SPRITE)
+    source = objects.get(LOCALIZED_SHOP_SPRITE)
+    if target is None or source is None or target.type.name != "Sprite" or source.type.name != "Sprite":
+        raise RuntimeError("Room shop sprite or reusable localized icon is missing")
+    original = target.read_typetree()
+    reused = source.read_typetree()
+    if original["m_Name"] != "RoomShop" or (original["m_Rect"]["width"], original["m_Rect"]["height"]) != (205.0, 221.0) or original["m_RD"]["texture"] != {"m_FileID": 0, "m_PathID": 1930}:
+        raise RuntimeError("Room shop sprite differs from the supported build")
+    if reused["m_Name"] != "ui02_icon_shop" or (reused["m_Rect"]["width"], reused["m_Rect"]["height"]) != (150.0, 140.0) or reused["m_RD"]["texture"] != {"m_FileID": 0, "m_PathID": 2491}:
+        raise RuntimeError("Reusable shop icon differs from the supported build")
+    reused["m_Name"] = original["m_Name"]
+    reused["m_RenderDataKey"] = original["m_RenderDataKey"]
+    reused["m_RD"]["texture"] = original["m_RD"]["texture"]
+    target.save_typetree(reused)
+
+
 def patch_loading_animation(env) -> None:
     objects = {obj.path_id: obj for obj in env.objects}
     for path_id, (name, source_size, filename) in LOADING_TEXT_ASSETS.items():
@@ -302,6 +346,46 @@ def patch_dungeon_limited_card_label(env) -> None:
     struct.pack_into("<i", raw, 316, 1)
     struct.pack_into("<ff", raw, 320, *DUNGEON_LIMITED_CARD_FONT_BOUNDS)
     obj.set_raw_data(bytes(raw))
+
+
+def patch_resource_name(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    obj = objects.get(RESOURCE_NAME_OBJECT)
+    rect_obj = objects.get(RESOURCE_NAME_RECT)
+    if obj is None or obj.type.name != "MonoBehaviour" or rect_obj is None or rect_obj.type.name != "RectTransform":
+        raise RuntimeError("Full-size resource title is missing")
+    raw = bytearray(obj.get_raw_data())
+    if len(raw) != 508 or text_at_offset(raw) != "符文":
+        raise RuntimeError("Full-size resource title TMP layout differs")
+    if struct.unpack_from("<ffiiff", raw, 292) != (30.0, 32.0, 400, 1, 22.0, 30.0) or struct.unpack_from("<i", raw, 356)[0] != 0:
+        raise RuntimeError("Full-size resource title font/wrapping differs")
+    rect = rect_obj.read()
+    if (rect.m_SizeDelta.x, rect.m_SizeDelta.y) != (230.0, 40.0) or abs(rect.m_AnchoredPosition.y + 33.0) > 0.01:
+        raise RuntimeError("Full-size resource title rectangle differs")
+    struct.pack_into("<ff", raw, 308, *RESOURCE_NAME_FONT_BOUNDS)
+    struct.pack_into("<i", raw, 356, 1)
+    obj.set_raw_data(bytes(raw))
+    rect.m_SizeDelta.x, rect.m_SizeDelta.y = RESOURCE_NAME_SIZE
+    rect.m_AnchoredPosition.y = RESOURCE_NAME_Y
+    rect.save()
+
+
+def patch_battle_dialog_contrast(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    for path_id, (font, material) in BATTLE_DIALOG_TEXTS.items():
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "MonoBehaviour":
+            raise RuntimeError(f"Battle dialog TMP {path_id} is missing")
+        raw = bytearray(obj.get_raw_data())
+        if len(raw) != 500 or struct.unpack_from("<iq", raw, 16) != (1, 2151) or struct.unpack_from("<I", raw, 88)[0] != 0:
+            raise RuntimeError(f"Battle dialog TMP {path_id} layout differs")
+        if struct.unpack_from("<iqiq", raw, 96) != (0, font, 0, material):
+            raise RuntimeError(f"Battle dialog TMP {path_id} font/material differs")
+        if raw[140:160] != b"\xff" * 4 + struct.pack("<4f", 1.0, 1.0, 1.0, 1.0):
+            raise RuntimeError(f"Battle dialog TMP {path_id} source color differs")
+        raw[140:144] = bytes(BATTLE_DIALOG_COLOR)
+        struct.pack_into("<4f", raw, 144, *(channel / 255 for channel in BATTLE_DIALOG_COLOR))
+        obj.set_raw_data(bytes(raw))
 
 
 def translated_runtime_metadata(data: bytes) -> bytes:
@@ -465,7 +549,10 @@ def patch_environment(env) -> tuple[int, int]:
     patch_treasure_descriptions(env)
     patch_treasure_requirements(env)
     patch_dungeon_limited_card_label(env)
+    patch_resource_name(env)
+    patch_battle_dialog_contrast(env)
     patch_ui_textures(env)
+    patch_room_shop_icon(env)
     patch_loading_animation(env)
     patch_win_geometry(env)
     patch_shop_footers(env)
@@ -489,6 +576,17 @@ def verify_environment(env) -> None:
         with Image.open(ROOT / filename) as image:
             if texture.image.tobytes() != image.convert("RGBA").tobytes():
                 raise RuntimeError(f"Localized UI texture {path_id} pixels differ")
+    room_shop = objects.get(ROOM_SHOP_SPRITE)
+    reusable_shop = objects.get(LOCALIZED_SHOP_SPRITE)
+    if room_shop is None or reusable_shop is None or room_shop.type.name != "Sprite" or reusable_shop.type.name != "Sprite":
+        raise RuntimeError("Room shop sprite or reusable localized icon is missing")
+    actual = room_shop.read_typetree()
+    expected = reusable_shop.read_typetree()
+    expected["m_Name"] = "RoomShop"
+    expected["m_RenderDataKey"] = actual["m_RenderDataKey"]
+    expected["m_RD"]["texture"] = {"m_FileID": 0, "m_PathID": 1930}
+    if actual != expected:
+        raise RuntimeError("Room shop sprite does not reuse localized icon geometry")
     for path_id, (name, _, filename) in LOADING_TEXT_ASSETS.items():
         obj = objects.get(path_id)
         if obj is None or obj.type.name != "TextAsset":
@@ -577,6 +675,28 @@ def verify_environment(env) -> None:
         raise RuntimeError("Dungeon-limited card label is not autosizing")
     if struct.unpack_from("<ff", raw, 320) != DUNGEON_LIMITED_CARD_FONT_BOUNDS:
         raise RuntimeError("Dungeon-limited card font bounds differ")
+    obj = objects.get(RESOURCE_NAME_OBJECT)
+    rect_obj = objects.get(RESOURCE_NAME_RECT)
+    if obj is None or obj.type.name != "MonoBehaviour" or rect_obj is None or rect_obj.type.name != "RectTransform":
+        raise RuntimeError("Full-size resource title is missing")
+    raw = obj.get_raw_data()
+    if len(raw) != 508 or text_at_offset(raw) != "符文":
+        raise RuntimeError("Full-size resource title TMP layout differs")
+    if struct.unpack_from("<ffiiff", raw, 292) != (30.0, 32.0, 400, 1, *RESOURCE_NAME_FONT_BOUNDS) or struct.unpack_from("<i", raw, 356)[0] != 1:
+        raise RuntimeError("Full-size resource title font/wrapping differs")
+    rect = rect_obj.read()
+    if (rect.m_SizeDelta.x, rect.m_SizeDelta.y) != RESOURCE_NAME_SIZE or rect.m_AnchoredPosition.y != RESOURCE_NAME_Y:
+        raise RuntimeError("Full-size resource title rectangle differs")
+    for path_id, (font, material) in BATTLE_DIALOG_TEXTS.items():
+        obj = objects.get(path_id)
+        if obj is None or obj.type.name != "MonoBehaviour":
+            raise RuntimeError(f"Battle dialog TMP {path_id} is missing")
+        raw = obj.get_raw_data()
+        expected_color = bytes(BATTLE_DIALOG_COLOR) + struct.pack("<4f", *(channel / 255 for channel in BATTLE_DIALOG_COLOR))
+        if len(raw) != 500 or struct.unpack_from("<iq", raw, 16) != (1, 2151) or raw[140:160] != expected_color:
+            raise RuntimeError(f"Battle dialog TMP {path_id} color/layout differs")
+        if struct.unpack_from("<iqiq", raw, 96) != (0, font, 0, material):
+            raise RuntimeError(f"Battle dialog TMP {path_id} font/material changed")
 
 
 def patch(asset: Path, output: Path) -> None:

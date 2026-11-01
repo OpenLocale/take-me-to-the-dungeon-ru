@@ -1,5 +1,6 @@
 {
   "source": "resources.assets.ru-original",
+  "pending_changes": {"date":"2026-11-01","rb":["RB-033","RB-034","RB-035","RB-036"],"built":true,"installed":false,"published":false,"resources_bytes":289092904,"metadata_bytes":14062552,"metadata_changed":false,"corpus_entries":8218,"corpus_changed":false,"texture_targets":86,"unique_png_files":85,"new_png_files":0,"new_imagegen_calls":0,"check":"passed once","font":"Ready Noto Sans Regular imported;77 codepoints;not rebuilt","verify":"passed once after complete build/font import, including title layout,RoomShop sprite and four scoped battle text colors/font/material bindings","method":"RoomShop reuses PNG2491 and Sprite11570 geometry with RoomShop identity/texture binding. Full rune title wraps. AP label confirmed as existing Bold26pt, unchanged. Four battle fields use262626 instead of white; alpha/fonts/materials retained. No game launch/install/publication; released package records below remain historical."},
   "final_changes": {"version":"v0.9.1","date":"2026-10-13","rb":["RB-029","RB-030","RB-031","RB-032"],"source_ready":true,"built":true,"installed":true,"total_textures":85,"imagegen_calls":0,"method":"WIN exact prior glyph masks/native horizontal layout. One card label autosizing; four scoped level literals. Main title from user-supplied transparent PNG fitted without distortion to the original English texture.","authorization":"User explicitly requests both full releases, v0.9.1 build/install, synchronization and merge to main; numbering confirmed","metadata_bytes":14062552},
   "published_baseline": {"version":"v0.9.0","source_commit":"d6c37b8","resources_bytes":283628496,"metadata_bytes":14062472,"textures":84,"changed_translations":178,"preserved_translations":8040,"archive":"dist/v0.9.0/TakeMeToTheDungeon-RU.zip","archive_bytes":54846549,"url":"https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/tag/v0.9.0","published":true,"draft":false,"prerelease":false,"scope":"Validated package before RB029-032; WINv2; old card caption and level formats; English title logo"},
   "candidate_package": {"version":"v0.9.1","date":"2026-10-13","rb":"RB-029–RB-032 plus all v0.9.0 content","source_commit":"c238883","merge_commit":"0863ef1","resources_bytes":289009832,"metadata_bytes":14062552,"changed_translations":179,"preserved_translations":8039,"check":"passed before final fixes build; corpus unchanged during logo import","font":"Ready Noto Sans Regular;77 required codepoints","verify":"passed once after v0.9.1 build/font import;85 textures,2 Loading TextAssets,WIN geometry and scoped fields","metadata_verify":"passed once;7 scoped UI formats;literal-pool growth80 bytes;other payloads/indices/Сохр. retained","installed":true,"published":true,"draft":false,"prerelease":false,"latest":true,"archive":"dist/v0.9.1/TakeMeToTheDungeon-RU.zip","archive_bytes":55769440,"url":"https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/tag/v0.9.1","release_state":"Published full release; asset size/state and latest confirmed; main merged; working branch synchronized; foreign guide edits preserved","installed_at":"2026-10-13T11:26:48+04:00"},
@@ -9,8 +10,19 @@
   "review_archive": {"pngs":85,"path":"dist/v0.9.1/Translated-PNG-assets.zip","bytes":17951477,"published":false,"scope":"Active PNGs only; local user review, not a GitHub release asset"},
   "review_sheet": "audit/ui_image_localization_qa.png",
   "method": "Original 19 common UI images: built-in ImageGen plus precise compositing. Added 33 tutorials, WIN atlas and two floor badges: reviewed native bitmap edits; detailed methods, actual prompts and preserved regions in ui_tutorial_localization.json. Original .resS untouched.",
-  "scope": "85 integrated textures: prior84 plus English main-menu title replaced by the user-supplied Russian logo. v0.9.0 retains the prior84 and WINv2; v0.9.1 uses WINv3 and the title. Native dungeon art, frames, alpha and autosave motion preserved. Loading geometry adapted; original curves retained. Runtime remains user-checked.",
+  "scope": "Released v0.9.1 has85 localized textures. Pending RB034 adds RoomShop using existing PNG2491:86 texture targets and85 unique PNGs, plus matching reused sprite geometry. v0.9.0 retains prior84 and WINv2; v0.9.1 uses WINv3/title. Other dungeon art, frames, alpha and animations remain unchanged; runtime remains user-checked.",
   "textures": [
+    {
+      "texture_path_id": 1930,
+      "sprite_path_id": 11198,
+      "name": "RoomShop",
+      "text": "ЛАВКА",
+      "png": "tools/ui_image_2491_ru.png",
+      "size": [205, 221],
+      "output_size": [150, 140],
+      "reused_from_texture_path_id": 2491,
+      "method": "RB034: reuse the existing localized ui02_icon_shop PNG unchanged. RoomShop Sprite11198 adopts Sprite11570 geometry/UVs with its own name, identity and Texture1930 binding retained. Both Texture2D and Sprite resources under icon/roomshop use the same localized artwork; no new PNG or ImageGen call."
+    },
     {
       "texture_path_id": 2612,
       "sprite_path_id": 11654,
