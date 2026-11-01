@@ -110,6 +110,10 @@ LEVEL_METADATA_LITERALS = (
     (6262, b'Lv{0}: {1}</size>', 'Ур. {0}: {1}</size>'.encode('utf-8')),
     (16475, b'{0} Lv{1}', '{0} ур. {1}'.encode('utf-8')),
 )
+# RB-039: literal8386 is used only by DungeonButtonUIView.OnViewModelChanged
+# (native refs44b9fe/44bb4f). Keep seven spaces separating the dungeon name.
+SPECIAL_DUNGEON_LITERAL = (8386, b'Special       ', 'Особое       '.encode('utf-8'))
+RUNTIME_APPENDED_LITERALS = (*LEVEL_METADATA_LITERALS, SPECIAL_DUNGEON_LITERAL)
 METADATA_LITERAL_LAYOUT = (256, 135768, 136024, 480208)
 
 # TreasureButtonUIView / InnerPanel / Txt Description in its six prefab copies.
@@ -405,7 +409,7 @@ def translated_runtime_metadata(data: bytes) -> bytes:
     pool_end = pool_offset + pool_size
     result = bytearray(data)
     added = bytearray()
-    for index, original, translated in LEVEL_METADATA_LITERALS:
+    for index, original, translated in RUNTIME_APPENDED_LITERALS:
         entry = table_offset + index * 8
         if entry + 8 > table_offset + table_size:
             raise RuntimeError('Level literal index lies outside its table')
@@ -434,7 +438,7 @@ def patch_runtime_metadata(source: Path, output: Path) -> None:
     data = translated_runtime_metadata(source.read_bytes())
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(data)
-    print(f'Patched {len(RUNTIME_METADATA_REPLACEMENTS) + len(LEVEL_METADATA_LITERALS)} scoped UI formats in {output}; level strings appended to literal pool')
+    print(f'Patched {len(RUNTIME_METADATA_REPLACEMENTS) + len(RUNTIME_APPENDED_LITERALS)} scoped UI formats in {output}; visible strings appended to literal pool')
 
 
 def verify_runtime_metadata(source: Path, output: Path) -> None:
