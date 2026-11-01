@@ -101,6 +101,11 @@ BATTLE_DIALOG_TEXTS = {
     276224: (225372, 497, 1, 156581),
 }
 BATTLE_DIALOG_COLOR = (38, 38, 38, 255)
+# This background's UniversalForward pass is drawn again by the game's
+# after-transparents GrabPass feature, washing out text already above it.
+# A dedicated copy retains Universal2D without changing the shared material.
+BATTLE_DIALOG_BACKGROUND_MATERIAL = 283813
+BATTLE_DIALOG_BACKGROUND_RENDERERS = {172038: 47613, 172039: 47614}
 
 # Visual QA: keep paired alert actions at the same readable ceiling.
 ALERT_BUTTON_TEXTS = (250174, 229707, 264310)
@@ -502,6 +507,48 @@ def patch_battle_dialog_contrast(env) -> None:
             raise RuntimeError(f"Battle dialog renderer {renderer_id} material differs")
         renderer.m_Materials[0].m_PathID = material
         renderer.save()
+    source = objects[599]
+    tree = source.read_typetree()
+    if (source.type.name != "Material" or tree["m_Name"] != "Sprite-Unlit-Default"
+            or tree["m_Shader"] != {"m_FileID": 0, "m_PathID": 4033}
+            or tree["disabledShaderPasses"] != [] or tree["m_CustomRenderQueue"] != -1):
+        raise RuntimeError("Battle dialog background material differs")
+    if BATTLE_DIALOG_BACKGROUND_MATERIAL in objects:
+        raise RuntimeError("Battle dialog background material ID is occupied")
+    local_tree = copy.deepcopy(tree)
+    local_tree["m_Name"] = "BattleTalkBox Background RU"
+    local_tree["disabledShaderPasses"] = ["UniversalForward"]
+    local_material = copy.copy(source)
+    local_material.path_id = BATTLE_DIALOG_BACKGROUND_MATERIAL
+    source.assets_file.objects[local_material.path_id] = local_material
+    local_material.save_typetree(local_tree)
+    for path_id, game_id in BATTLE_DIALOG_BACKGROUND_RENDERERS.items():
+        renderer = objects[path_id]
+        fields = renderer.read_typetree()
+        if (renderer.type.name != "SpriteRenderer"
+                or fields["m_GameObject"] != {"m_FileID": 0, "m_PathID": game_id}
+                or fields["m_Sprite"] != {"m_FileID": 0, "m_PathID": 11212}
+                or fields["m_Materials"] != [{"m_FileID": 0, "m_PathID": 599}]
+                or fields["m_SortingLayerID"] != 998296695 or fields["m_SortingOrder"] != 50):
+            raise RuntimeError(f"Battle dialog background renderer {path_id} differs")
+        fields["m_Materials"][0]["m_PathID"] = BATTLE_DIALOG_BACKGROUND_MATERIAL
+        renderer.save_typetree(fields)
+
+
+def verify_battle_dialog_background(objects) -> None:
+    expected = objects[599].read_typetree()
+    if expected["disabledShaderPasses"] != []:
+        raise RuntimeError("Shared sprite material was changed")
+    expected["m_Name"] = "BattleTalkBox Background RU"
+    expected["disabledShaderPasses"] = ["UniversalForward"]
+    material = objects[BATTLE_DIALOG_BACKGROUND_MATERIAL]
+    if material.type.name != "Material" or material.read_typetree() != expected:
+        raise RuntimeError("Battle dialog local material changes more than the extra pass")
+    for path_id in BATTLE_DIALOG_BACKGROUND_RENDERERS:
+        fields = objects[path_id].read_typetree()
+        if (fields["m_Materials"] != [{"m_FileID": 0, "m_PathID": BATTLE_DIALOG_BACKGROUND_MATERIAL}]
+                or fields["m_SortingLayerID"] != 998296695 or fields["m_SortingOrder"] != 50):
+            raise RuntimeError(f"Battle dialog background renderer {path_id} material differs")
 
 
 def patch_primary_font_lookup(env) -> None:
@@ -953,6 +1000,7 @@ def verify_environment(env) -> None:
         raise RuntimeError("Full-size resource title rectangle differs")
     if struct.unpack_from("<i", objects[PRIMARY_FONT_OBJECT].get_raw_data(), PRIMARY_FONT_MODE_OFFSET)[0] != 0:
         raise RuntimeError("Primary font must use static lookup before its fallback")
+    verify_battle_dialog_background(objects)
     for path_id, (font, _, material, renderer_id) in BATTLE_DIALOG_TEXTS.items():
         obj = objects.get(path_id)
         if obj is None or obj.type.name != "MonoBehaviour":
