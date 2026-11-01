@@ -127,6 +127,9 @@ MINI_RESOURCE_GRIDS = {
     276019: ((100., 160., 15., 10.), 40, (100., 160., 28., 10.), 17),
     231322: ((100., 160., 15., 10.), 40, (100., 160., 28., 10.), 17),
 }
+# Separate decorative backgrounds: cover taller captions without changing
+# the recommendation layout or its native four-column height calculation.
+RECOMMENDATION_BACKGROUNDS = (203513, 204105)
 MARKET_RESOURCE_OFFSETS = {
     204602: (46.6, 61.6), 198099: (46.6, 61.6),
     199171: (-46.8, -61.8), 215251: (-46.8, -61.8),
@@ -583,6 +586,14 @@ def patch_visual_qa_layout(env) -> None:
         struct.pack_into("<4f", raw, 60, *target)
         struct.pack_into("<i", raw, 32, padding)
         obj.set_raw_data(bytes(raw))
+    for path_id in RECOMMENDATION_BACKGROUNDS:
+        rect = objects[path_id].read()
+        if ((rect.m_SizeDelta.x, rect.m_SizeDelta.y, rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y) != (-22., 0., 4., 0.)
+                or (rect.m_AnchorMin.x, rect.m_AnchorMin.y, rect.m_AnchorMax.x, rect.m_AnchorMax.y) != (0., 0., 1., 1.)
+                or (rect.m_Pivot.x, rect.m_Pivot.y) != (.5, .5)):
+            raise RuntimeError(f"Recommendation background {path_id} geometry differs")
+        rect.m_SizeDelta.y, rect.m_AnchoredPosition.y = 18., -9.
+        rect.save()
     for path_id, (source, target) in MARKET_RESOURCE_OFFSETS.items():
         rect = objects[path_id].read()
         if not math.isclose(rect.m_AnchoredPosition.y, source, abs_tol=.0001):
@@ -619,6 +630,10 @@ def verify_visual_qa_layout(objects) -> None:
         raw = objects[path_id].get_raw_data()
         if struct.unpack_from("<4f", raw, 60) != target or struct.unpack_from("<i", raw, 32)[0] != padding:
             raise RuntimeError(f"Mini resource grid {path_id} sizing differs")
+    for path_id in RECOMMENDATION_BACKGROUNDS:
+        rect = objects[path_id].read()
+        if (rect.m_SizeDelta.x, rect.m_SizeDelta.y, rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y) != (-22., 18., 4., -9.):
+            raise RuntimeError(f"Recommendation background {path_id} geometry differs")
     for path_id, (_, target) in MARKET_RESOURCE_OFFSETS.items():
         if not math.isclose(objects[path_id].read().m_AnchoredPosition.y, target, abs_tol=.0001):
             raise RuntimeError(f"Market rectangle {path_id} position differs")
