@@ -90,14 +90,21 @@ ROOM_SHOP_SPRITE = 11198
 LOCALIZED_SHOP_SPRITE = 11570
 
 # RB-036: both sides' normal/magic battle speech fields are white on white.
-# Set only their vertex face color; keep fonts, outline materials and alpha.
+# Use the existing plain atlas material for each font, removing the thick
+# dilated outline. Bind both TMP and its renderer; keep fonts and fading alpha.
 BATTLE_DIALOG_TEXTS = {
-    249573: (225370, 460),
-    273892: (225370, 460),
-    229696: (225372, 497),
-    276224: (225372, 497),
+    249573: (225370, 460, 608, 157307),
+    273892: (225370, 460, 608, 157510),
+    229696: (225372, 497, 1, 158251),
+    276224: (225372, 497, 1, 156581),
 }
 BATTLE_DIALOG_COLOR = (38, 38, 38, 255)
+
+# RB-043: this original atlas is not readable, so every dynamic insertion
+# fails before TMP searches the existing Cyrillic fallback. Keep all glyphs
+# and atlas bytes; use static lookup instead. Font importer keeps this flag.
+PRIMARY_FONT_OBJECT = 225370
+PRIMARY_FONT_MODE_OFFSET = 124
 
 # DeckDetailUIViewController / Right Panel / Attr Panel / Txt Statictis.
 # DrawPair overlays the number using <line-height=0%><br>; extra spacing
@@ -432,20 +439,39 @@ def patch_ui_button_emphasis(env) -> None:
 
 def patch_battle_dialog_contrast(env) -> None:
     objects = {obj.path_id: obj for obj in env.objects}
-    for path_id, (font, material) in BATTLE_DIALOG_TEXTS.items():
+    for path_id, (font, source_material, material, renderer_id) in BATTLE_DIALOG_TEXTS.items():
         obj = objects.get(path_id)
         if obj is None or obj.type.name != "MonoBehaviour":
             raise RuntimeError(f"Battle dialog TMP {path_id} is missing")
         raw = bytearray(obj.get_raw_data())
         if len(raw) != 500 or struct.unpack_from("<iq", raw, 16) != (1, 2151) or struct.unpack_from("<I", raw, 88)[0] != 0:
             raise RuntimeError(f"Battle dialog TMP {path_id} layout differs")
-        if struct.unpack_from("<iqiq", raw, 96) != (0, font, 0, material):
+        if struct.unpack_from("<iqiq", raw, 96) != (0, font, 0, source_material):
             raise RuntimeError(f"Battle dialog TMP {path_id} font/material differs")
         if raw[140:160] != b"\xff" * 4 + struct.pack("<4f", 1.0, 1.0, 1.0, 1.0):
             raise RuntimeError(f"Battle dialog TMP {path_id} source color differs")
         raw[140:144] = bytes(BATTLE_DIALOG_COLOR)
         struct.pack_into("<4f", raw, 144, *(channel / 255 for channel in BATTLE_DIALOG_COLOR))
+        struct.pack_into("<4f", raw, 44, *(channel / 255 for channel in BATTLE_DIALOG_COLOR))
+        struct.pack_into("<q", raw, 112, material)
         obj.set_raw_data(bytes(raw))
+        renderer = objects[renderer_id].read()
+        if [(p.m_FileID, p.m_PathID) for p in renderer.m_Materials] != [(0, source_material)]:
+            raise RuntimeError(f"Battle dialog renderer {renderer_id} material differs")
+        renderer.m_Materials[0].m_PathID = material
+        renderer.save()
+
+
+def patch_primary_font_lookup(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    font = objects[PRIMARY_FONT_OBJECT]
+    raw = bytearray(font.get_raw_data())
+    if len(raw) != 713276 or serialized_string("CJKtc SDF") not in raw[:100] or struct.unpack_from("<i", raw, PRIMARY_FONT_MODE_OFFSET)[0] != 1:
+        raise RuntimeError("Primary font dynamic-mode layout differs")
+    if objects[4022].read().m_IsReadable:
+        raise RuntimeError("Primary font atlas is now readable; review static lookup patch")
+    struct.pack_into("<i", raw, PRIMARY_FONT_MODE_OFFSET, 0)
+    font.set_raw_data(bytes(raw))
 
 
 def translated_runtime_metadata(data: bytes) -> bytes:
@@ -611,6 +637,7 @@ def patch_environment(env) -> tuple[int, int]:
     patch_dungeon_limited_card_label(env)
     patch_resource_name(env)
     patch_battle_dialog_contrast(env)
+    patch_primary_font_lookup(env)
     patch_ui_button_emphasis(env)
     patch_ui_textures(env)
     patch_room_shop_icon(env)
@@ -748,7 +775,9 @@ def verify_environment(env) -> None:
     rect = rect_obj.read()
     if (rect.m_SizeDelta.x, rect.m_SizeDelta.y) != RESOURCE_NAME_SIZE or rect.m_AnchoredPosition.y != RESOURCE_NAME_Y:
         raise RuntimeError("Full-size resource title rectangle differs")
-    for path_id, (font, material) in BATTLE_DIALOG_TEXTS.items():
+    if struct.unpack_from("<i", objects[PRIMARY_FONT_OBJECT].get_raw_data(), PRIMARY_FONT_MODE_OFFSET)[0] != 0:
+        raise RuntimeError("Primary font must use static lookup before its fallback")
+    for path_id, (font, _, material, renderer_id) in BATTLE_DIALOG_TEXTS.items():
         obj = objects.get(path_id)
         if obj is None or obj.type.name != "MonoBehaviour":
             raise RuntimeError(f"Battle dialog TMP {path_id} is missing")
@@ -758,6 +787,14 @@ def verify_environment(env) -> None:
             raise RuntimeError(f"Battle dialog TMP {path_id} color/layout differs")
         if struct.unpack_from("<iqiq", raw, 96) != (0, font, 0, material):
             raise RuntimeError(f"Battle dialog TMP {path_id} font/material changed")
+        if raw[44:60] != expected_color[4:]:
+            raise RuntimeError(f"Battle dialog TMP {path_id} graphic color differs")
+        renderer = objects[renderer_id].read()
+        if [(p.m_FileID, p.m_PathID) for p in renderer.m_Materials] != [(0, material)]:
+            raise RuntimeError(f"Battle dialog renderer {renderer_id} material differs")
+        floats = dict(objects[material].read().m_SavedProperties.m_Floats)
+        if any(floats[name] != 0 for name in ("_FaceDilate", "_OutlineWidth", "_OutlineSoftness")):
+            raise RuntimeError(f"Battle dialog material {material} is not plain")
     for path_id, (text, size, base, low, high) in EMPHASIS_BUTTONS.items():
         obj = objects.get(path_id)
         if obj is None or obj.type.name != "MonoBehaviour":
