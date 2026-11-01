@@ -136,9 +136,11 @@ MARKET_RESOURCE_OFFSETS = {
     212932: (-90., -105.), 203196: (-90., -105.),
 }
 ENEMY_NAME_COUNT = 274
-ENEMY_NAME_SIZE = (2.2, .65)
-ENEMY_NAME_POSITION = (1.355, .845)
-ENEMY_NAME_FONT_BOUNDS = (1.8, 2.2)
+# Keep the original name/HP baseline and horizontal corridor. Longer words
+# use sizing within that original box instead of moving the label above it.
+ENEMY_NAME_SIZE = (1., 1.)
+ENEMY_NAME_POSITION = (.755, .655)
+ENEMY_NAME_FONT_BOUNDS = (1.1, 2.2)
 
 # RB-043: this original atlas is not readable, so every dynamic insertion
 # fails before TMP searches the existing Cyrillic fallback. Keep all glyphs
