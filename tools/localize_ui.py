@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import re
 import struct
 import sys
@@ -35,6 +36,7 @@ UI_TEXT_OBJECTS = {
 # Narrow controls, prose, card text, counters and other labels stay untouched.
 EMPHASIS_BUTTON_GROUPS = {
     ("儲存", 30.0, 33.0, 18.0, 30.0): (250599,),
+    ("載入", 30.0, 33.0, 18.0, 30.0): (270270,),
     ("取消", 30.0, 33.0, 18.0, 30.0): (227684, 229707, 229708, 232566, 239293, 240439, 246568, 252695, 255999, 257186, 257189, 259567, 260055, 262932, 265136, 266543, 271094, 276435),
     ("合成", 30.0, 33.0, 18.0, 30.0): (257161, 257164),
     ("新遊戲", 32.0, 32.0, 12.0, 32.0): (258748,),
@@ -99,6 +101,41 @@ BATTLE_DIALOG_TEXTS = {
     276224: (225372, 497, 1, 156581),
 }
 BATTLE_DIALOG_COLOR = (38, 38, 38, 255)
+
+# Visual QA: keep paired alert actions at the same readable ceiling.
+ALERT_BUTTON_TEXTS = (250174, 229707, 264310)
+ALERT_BUTTON_SIZE = 26.0
+
+# Mini resource captions need three lines without falling back to10pt.
+# Inventory/market keep their columns; recommendations must retain four:
+# the game's preferred-height calculation explicitly divides the count by4.
+MINI_RESOURCE_LABELS = {
+    228009: (220958, 20.0, 13.5),
+    228722: (221203, 20.0, 13.5),
+    228010: (220959, 40.0, 13.5),
+    240355: (213901, 40.0, 13.5),
+    279133: (197635, 23.0, 12.0),
+    227797: (220870, 23.0, 12.0),
+}
+# pathID: source(cellX,cellY,spacingX,spacingY), source left padding,
+# target values. Market prices/quantity move with the extra row height.
+MINI_RESOURCE_GRIDS = {
+    273281: ((135., 138., 15., 10.), 83, (135., 168., 15., 10.), 83),
+    274773: ((135., 138., 15., 10.), 83, (135., 168., 15., 10.), 83),
+    273282: ((135., 225., 26., 10.), 130, (135., 255., 26., 10.), 130),
+    274524: ((135., 225., 26., 10.), 130, (135., 255., 26., 10.), 130),
+    276019: ((100., 160., 15., 10.), 40, (100., 160., 28., 10.), 17),
+    231322: ((100., 160., 15., 10.), 40, (100., 160., 28., 10.), 17),
+}
+MARKET_RESOURCE_OFFSETS = {
+    204602: (46.6, 61.6), 198099: (46.6, 61.6),
+    199171: (-46.8, -61.8), 215251: (-46.8, -61.8),
+    212932: (-90., -105.), 203196: (-90., -105.),
+}
+ENEMY_NAME_COUNT = 274
+ENEMY_NAME_SIZE = (2.2, .65)
+ENEMY_NAME_POSITION = (1.355, .845)
+ENEMY_NAME_FONT_BOUNDS = (1.8, 2.2)
 
 # RB-043: this original atlas is not readable, so every dynamic insertion
 # fails before TMP searches the existing Cyrillic fallback. Keep all glyphs
@@ -474,6 +511,126 @@ def patch_primary_font_lookup(env) -> None:
     font.set_raw_data(bytes(raw))
 
 
+def enemy_name_fields(objects):
+    """Select enemy HP bars by prefab ancestry, excluding player/ally bars."""
+    fields = []
+    for obj in objects.values():
+        if obj.type.name != "MonoBehaviour":
+            continue
+        raw = obj.get_raw_data()
+        if len(raw) != 308 or struct.unpack_from("<iq", raw, 16) != (1, 3150):
+            continue
+        game_id = struct.unpack_from("<q", raw, 4)[0]
+        names = []
+        for _ in range(32):
+            if not game_id:
+                break
+            go = objects[game_id].read()
+            names.append(go.m_Name)
+            transform = next(objects[c.component.path_id] for c in go.m_Component
+                             if objects[c.component.path_id].type.name in ("Transform", "RectTransform"))
+            parent = transform.read().m_Father.path_id
+            game_id = objects[parent].read().m_GameObject.path_id if parent else 0
+        if "Monster Prefab" not in names and not any(n in names for n in ("BEOObject", "MonsterObject")):
+            continue
+        name_id = struct.unpack_from("<q", raw, 284)[0]
+        name_go = objects[struct.unpack_from("<q", objects[name_id].get_raw_data(), 4)[0]].read()
+        rect_id = next(c.component.path_id for c in name_go.m_Component
+                       if objects[c.component.path_id].type.name == "RectTransform")
+        fields.append((name_id, rect_id))
+    if len(fields) != ENEMY_NAME_COUNT or len(set(fields)) != ENEMY_NAME_COUNT:
+        raise RuntimeError(f"Expected {ENEMY_NAME_COUNT} enemy name fields, found {len(fields)}")
+    return fields
+
+
+def close_values(actual, expected):
+    return all(math.isclose(a, b, abs_tol=0.0001) for a, b in zip(actual, expected))
+
+
+def patch_visual_qa_layout(env) -> None:
+    objects = {obj.path_id: obj for obj in env.objects}
+    for path_id in ALERT_BUTTON_TEXTS:
+        obj = objects[path_id]
+        raw = bytearray(obj.get_raw_data())
+        # Emphasis ran earlier; use its pending data instead of the original.
+        if obj.data is not None:
+            raw = bytearray(obj.data)
+        if len(raw) != 508 or struct.unpack_from("<ffiiffi", raw, 292) != (30., 33., 400, 1, 18., 30., 17):
+            raise RuntimeError(f"Alert button {path_id} font layout differs")
+        struct.pack_into("<ff", raw, 292, ALERT_BUTTON_SIZE, ALERT_BUTTON_SIZE)
+        struct.pack_into("<f", raw, 312, ALERT_BUTTON_SIZE)
+        obj.set_raw_data(bytes(raw))
+    for path_id, (panel_id, width_delta, minimum) in MINI_RESOURCE_LABELS.items():
+        obj = objects[path_id]
+        raw = bytearray(obj.get_raw_data())
+        if len(raw) != 512 or struct.unpack_from("<iq", raw, 16) != (1, 3442) or text_at_offset(raw) != "猛虎斬":
+            raise RuntimeError(f"Mini resource label {path_id} layout differs")
+        if struct.unpack_from("<ffiiffi", raw, 296) != (16., 16., 400, 1, 10., 16., 0) or struct.unpack_from("<i", raw, 360)[0] != 1:
+            raise RuntimeError(f"Mini resource label {path_id} sizing differs")
+        struct.pack_into("<f", raw, 312, minimum)
+        obj.set_raw_data(bytes(raw))
+        panel = objects[panel_id].read()
+        if (panel.m_SizeDelta.x, panel.m_SizeDelta.y, panel.m_AnchoredPosition.y) != (0., 30., -50.):
+            raise RuntimeError(f"Mini resource panel {panel_id} geometry differs")
+        panel.m_SizeDelta.x, panel.m_SizeDelta.y = width_delta, 60.
+        panel.m_AnchoredPosition.y = -65.
+        panel.save()
+    for path_id, (source, source_padding, target, padding) in MINI_RESOURCE_GRIDS.items():
+        obj = objects[path_id]
+        raw = bytearray(obj.get_raw_data())
+        if len(raw) != 84 or struct.unpack_from("<iq", raw, 16) != (1, 2022) or struct.unpack_from("<4f", raw, 60) != source or struct.unpack_from("<i", raw, 32)[0] != source_padding:
+            raise RuntimeError(f"Mini resource grid {path_id} layout differs")
+        struct.pack_into("<4f", raw, 60, *target)
+        struct.pack_into("<i", raw, 32, padding)
+        obj.set_raw_data(bytes(raw))
+    for path_id, (source, target) in MARKET_RESOURCE_OFFSETS.items():
+        rect = objects[path_id].read()
+        if not math.isclose(rect.m_AnchoredPosition.y, source, abs_tol=.0001):
+            raise RuntimeError(f"Market resource rectangle {path_id} position differs")
+        rect.m_AnchoredPosition.y = target
+        rect.save()
+    for name_id, rect_id in enemy_name_fields(objects):
+        obj = objects[name_id]
+        raw = bytearray(obj.get_raw_data())
+        if len(raw) != 508 or struct.unpack_from("<iq", raw, 16) != (1, 2151) or text_at_offset(raw) != "Monster":
+            raise RuntimeError(f"Enemy name {name_id} TMP layout differs")
+        if not close_values(struct.unpack_from("<ffiiff", raw, 292), (2.2, 2.2, 400, 0, 18., 72.)) or struct.unpack_from("<iii", raw, 316) != (0, 1, 1024) or struct.unpack_from("<i", raw, 356)[0] != 1:
+            raise RuntimeError(f"Enemy name {name_id} font layout differs")
+        rect = objects[rect_id].read()
+        if not close_values((rect.m_SizeDelta.x, rect.m_SizeDelta.y, rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y), (1., 1., .755, .655)):
+            raise RuntimeError(f"Enemy name rectangle {rect_id} geometry differs")
+        struct.pack_into("<i", raw, 304, 1)
+        struct.pack_into("<ff", raw, 308, *ENEMY_NAME_FONT_BOUNDS)
+        obj.set_raw_data(bytes(raw))
+        rect.m_SizeDelta.x, rect.m_SizeDelta.y = ENEMY_NAME_SIZE
+        rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y = ENEMY_NAME_POSITION
+        rect.save()
+
+
+def verify_visual_qa_layout(objects) -> None:
+    for path_id, (panel_id, width_delta, minimum) in MINI_RESOURCE_LABELS.items():
+        raw = objects[path_id].get_raw_data()
+        if len(raw) != 512 or struct.unpack_from("<ffiiffi", raw, 296) != (16., 16., 400, 1, minimum, 16., 0) or struct.unpack_from("<i", raw, 360)[0] != 1:
+            raise RuntimeError(f"Mini resource label {path_id} sizing differs")
+        panel = objects[panel_id].read()
+        if (panel.m_SizeDelta.x, panel.m_SizeDelta.y, panel.m_AnchoredPosition.y) != (width_delta, 60., -65.):
+            raise RuntimeError(f"Mini resource panel {panel_id} geometry differs")
+    for path_id, (_, _, target, padding) in MINI_RESOURCE_GRIDS.items():
+        raw = objects[path_id].get_raw_data()
+        if struct.unpack_from("<4f", raw, 60) != target or struct.unpack_from("<i", raw, 32)[0] != padding:
+            raise RuntimeError(f"Mini resource grid {path_id} sizing differs")
+    for path_id, (_, target) in MARKET_RESOURCE_OFFSETS.items():
+        if not math.isclose(objects[path_id].read().m_AnchoredPosition.y, target, abs_tol=.0001):
+            raise RuntimeError(f"Market rectangle {path_id} position differs")
+    for name_id, rect_id in enemy_name_fields(objects):
+        raw = objects[name_id].get_raw_data()
+        if not close_values(struct.unpack_from("<ffiiff", raw, 292), (2.2, 2.2, 400, 1, *ENEMY_NAME_FONT_BOUNDS)):
+            raise RuntimeError(f"Enemy name {name_id} sizing differs")
+        rect = objects[rect_id].read()
+        if not close_values((rect.m_SizeDelta.x, rect.m_SizeDelta.y, rect.m_AnchoredPosition.x, rect.m_AnchoredPosition.y), (*ENEMY_NAME_SIZE, *ENEMY_NAME_POSITION)):
+            raise RuntimeError(f"Enemy name rectangle {rect_id} geometry differs")
+
+
 def translated_runtime_metadata(data: bytes) -> bytes:
     if len(data) != DECK_METADATA_SIZE or data[:8] != struct.pack('<II', 0xFAB11BAF, 31):
         raise RuntimeError('UI metadata differs from Steam build 25319640')
@@ -639,6 +796,7 @@ def patch_environment(env) -> tuple[int, int]:
     patch_battle_dialog_contrast(env)
     patch_primary_font_lookup(env)
     patch_ui_button_emphasis(env)
+    patch_visual_qa_layout(env)
     patch_ui_textures(env)
     patch_room_shop_icon(env)
     patch_loading_animation(env)
@@ -803,8 +961,11 @@ def verify_environment(env) -> None:
         delta = ((len(text.encode("utf-8")) + 3) & ~3) - 8
         if len(raw) != 508 + delta or text_at_offset(raw) != text:
             raise RuntimeError(f"Emphasis button {path_id} text/layout differs")
+        if path_id in ALERT_BUTTON_TEXTS:
+            size = base = high = ALERT_BUTTON_SIZE
         if struct.unpack_from("<ffiiffi", raw, 292 + delta) != (size, base, 400, 1, low, high, 17):
             raise RuntimeError(f"Emphasis button {path_id} style or sizing differs")
+    verify_visual_qa_layout(objects)
     for path_id in EMPHASIS_BUTTON_PADDING_RECTS:
         obj = objects.get(path_id)
         if obj is None or obj.type.name != "RectTransform":
