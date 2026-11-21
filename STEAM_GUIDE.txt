@@ -1,5 +1,5 @@
 Название руководства:
-Русификатор Take Me To The Dungeon!! [v0.9.1]
+Русификатор Take Me To The Dungeon!! [v0.9.2]
 
 Краткое описание:
 Русский перевод для Steam build 25319640. Сюжет, интерфейс, обучение и дополнительный контент. Ручная установка с заменой двух игровых файлов.
@@ -15,7 +15,7 @@
 
 Раздел 1: О русификаторе
 
-[b]Версия перевода:[/b] 0.9.1
+[b]Версия перевода:[/b] 0.9.2
 [b]Совместимость:[/b] Steam build 25319640
 
 [h2]Что переведено[/h2]
@@ -34,10 +34,10 @@
 
 Раздел 2: Установка
 
-[h2]Скачать v0.9.1[/h2]
-[url=https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/download/v0.9.1/TakeMeToTheDungeon-RU.zip][b]Скачать русификатор v0.9.1[/b][/url]
-[b]Архив:[/b] TakeMeToTheDungeon-RU.zip, около 55,8 МБ.
-[url=https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/tag/v0.9.1]Страница выпуска[/url]
+[h2]Скачать v0.9.2[/h2]
+[url=https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/download/v0.9.2/TakeMeToTheDungeon-RU.zip][b]Скачать русификатор v0.9.2[/b][/url]
+[b]Архив:[/b] TakeMeToTheDungeon-RU.zip.
+[url=https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/tag/v0.9.2]Страница выпуска[/url]
 
 Архив содержит README.txt с инструкцией и два игровых файла:
 [list]
@@ -82,6 +82,13 @@ Take Me To The Dungeon!!\Take Me To The Dungeon!!_Data\il2cpp_data\Metadata\glob
 Если резервных копий нет, в Steam выберите [b]Свойства → Установленные файлы → Проверить целостность файлов игры[/b].
 
 Раздел 4: История изменений
+
+[h2]v0.9.2 — 7 ноября 2026[/h2]
+[list]
+[*]Повышена читаемость боевых диалогов, имён противников и названий рун.
+[*]Улучшены размещение текста и оформление элементов интерфейса.
+[*]Исправлены формулировки игровых эффектов и дополнена локализация магазина и выбора подземелья.
+[/list]
 
 [h2]v0.9.1 — 13 октября 2026[/h2]
 [list]
