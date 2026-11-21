@@ -20,7 +20,7 @@ py -3.12 -m pip install --target .tools/python -r tools/requirements.txt
 - `translation.json` — рабочий корпус (содержит полный английский текст игры);
 - оригинальный `resources.assets` Steam build `25319640` (например, сохранённый `resources.assets.ru-original`);
 - оригинальный `global-metadata.dat` той же сборки (`global-metadata.dat.build25319640.ru-original`);
-- 85 PNG `tools/ui_*_ru*.png` и `audit/ui_loading_ru.json`, `audit/ui_loading_ru.atlas`, `audit/ui_win_ru_v3.json`;
+- 85 PNG `tools/ui_*_ru*.png` (список и метод — `tools/ui_image_localization.json`) и `audit/ui_loading_ru.json`, `audit/ui_loading_ru.atlas`, `audit/ui_win_ru_v3.json`;
 - донор шрифта — `resources.assets` из опубликованного выпуска для той же сборки игры (сейчас v0.9.2).
 
 Установленный в игре локализованный файл никогда не используется как исход сборки.
@@ -54,7 +54,7 @@ py -3.12 -B tools/localize.py compare build/resources.assets <resources.assets �
 - `verify` — читаемость результата, тексты, точные пиксели текстур, адресные поля интерфейса и наличие fallback-шрифта;
 - `compare` — пообъектное сравнение двух `resources.assets`.
 
-`export`, `translate-ui` и `translate-plots` относятся к первоначальному созданию корпуса и в сборке не участвуют.
+`font-inputs` формирует список обязательных символов для перевыпечки шрифта.
 
 ## `localize_ui.py`
 
