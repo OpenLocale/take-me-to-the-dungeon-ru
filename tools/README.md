@@ -1,70 +1,89 @@
 # Инструменты проекта
 
-Экспериментальная ветка `feature/ui-typography` собрана и локально установлена2026-11-01:109 выбранных подписей кнопок Bold, компактный «Источник», локализованный Special и базовые runtime-фиксы. `fix/runtime-ui-2026-11-01` содержит исправления отдельно от эксперимента. Resources289092888/metadata14062568 байт,86 текстурных целей/85 PNG; один check/build/готовый font-import/verify и один metadata patch/verify прошли. Новые поля проверяются штатным verify; шрифт не перестраивался. Публичный выпуск не создавался. Ниже — сведения о ранее опубликованнойv0.9.1.
+Исходники pipeline, которым собраны опубликованные выпуски для Steam build `25319640`. Это инструменты конкретной сборки игры, а не универсальный localization framework: смещения и path ID проверяются для `25319640`.
 
-Здесь находятся исходники рабочего pipeline v0.9.1. По запросу пользователя2026-10-13 v0.9.0 выпущена из прежнего проверенного пакета, а три последние исправления и русский логотип относятся к v0.9.1. Финальная v0.9.1 собрана, проверена, установлена локально и опубликована; merge в удалённый main выполнен. Инструменты сохраняются для прозрачности процесса, не как универсальный localization framework.
+## Окружение
+
+- Python **3.12** (64-bit), версия закреплена в `.python-version`. Бинарные пакеты в `.tools/python` собраны под cp312; на другой версии Python скрипты сразу сообщают об ошибке окружения.
+- Точный набор пакетов — `tools/requirements.txt`. Установка в каталог проекта:
+
+```powershell
+py -3.12 -m pip install --target .tools/python -r tools/requirements.txt
+```
+
+- Unity и .NET SDK для обычной сборки не нужны (см. «Шрифт»).
+
+## Входные данные
+
+Все входы приватные и в Git не хранятся:
+
+- `translation.json` — рабочий корпус (содержит полный английский текст игры);
+- оригинальный `resources.assets` Steam build `25319640` (например, сохранённый `resources.assets.ru-original`);
+- оригинальный `global-metadata.dat` той же сборки (`global-metadata.dat.build25319640.ru-original`);
+- 85 PNG `tools/ui_*_ru*.png` и `audit/ui_loading_ru.json`, `audit/ui_loading_ru.atlas`, `audit/ui_win_ru_v3.json`;
+- донор шрифта — `resources.assets` из опубликованного выпуска для той же сборки игры (сейчас v0.9.2).
+
+Установленный в игре локализованный файл никогда не используется как исход сборки.
+
+## Сборка
+
+```powershell
+py -3.12 -B tools/localize.py check --work translation.json
+py -3.12 -B tools/localize.py build --game-asset <оригинальный resources.assets> --work translation.json --output build/fontless.resources.assets
+py -3.12 -B tools/localize.py font-fallback --built-asset build/fontless.resources.assets --donor-asset <resources.assets выпуска v0.9.2> --output build/resources.assets
+py -3.12 -B tools/localize.py verify --game-asset <оригинальный resources.assets> --work translation.json --built-asset build/resources.assets
+py -3.12 -B tools/localize_ui.py patch-runtime-metadata <оригинальный global-metadata.dat> build/global-metadata.dat
+py -3.12 -B tools/localize_ui.py verify-runtime-metadata <оригинальный global-metadata.dat> build/global-metadata.dat
+```
+
+Контроль воспроизводимости — сравнение с последним выпуском:
+
+```powershell
+py -3.12 -B tools/localize.py compare build/resources.assets <resources.assets выпуска>
+```
+
+`compare` сравнивает таблицу типов и каждый объект по path ID и сырым байтам и сообщает, совпадают ли файлы побайтно. Из корпуса v0.9.2 и оригиналов `25319640` оба игровых файла собираются побайтно идентичными v0.9.2.
 
 ## `localize.py`
 
-Работает с таблицами локализации для пяти языков. Они хранятся в `TextAsset` внутри `resources.assets` и используют формат `key=value`:
+Работает с таблицами локализации пяти языков в `TextAsset` формата `key=value`:
 
-- извлекает английские записи;
-- проверяет уникальность ключей, пустые переводы, placeholders, теги и повреждённую кодировку;
-- заменяет только английские значения;
-- проверяет читаемость результата через UnityPy.
+- `check` — уникальность ключей, пустые переводы, placeholders, теги, повреждённая кодировка;
+- `build` — заменяет только английские значения и применяет UI-правки `localize_ui.py`;
+- `font-fallback` — подключает статический кириллический fallback (см. «Шрифт»);
+- `verify` — читаемость результата, тексты, точные пиксели текстур, адресные поля интерфейса и наличие fallback-шрифта;
+- `compare` — пообъектное сравнение двух `resources.assets`.
 
-Рабочий `translation.json` не опубликован, поскольку содержит полный исходный английский текст игры вместе с русским переводом. Активный приватный корпус находится в корне этой рабочей ветки, результат — в `release/Take Me To The Dungeon!!_Data`. Пути передаются параметрами командной строки. Для сборки обязательно указывать сохранённый `resources.assets.ru-original`, не установленный локализованный файл. Зависимости берутся из локального `.tools/python` или установленного Python-окружения.
+`export`, `translate-ui` и `translate-plots` относятся к первоначальному созданию корпуса и в сборке не участвуют.
 
-В `localize_ui.py` интегрированы85 текстур, шесть UI-подписей, адресный интервал статистики, автоподбор17–26 для шести описаний,14–24 для шести требований,18–28 для двух SKIP и18–25 для карточки подземелья. Во всех шести TreasureButtonUIView наличие отделено от описания. «ЗАГРУЗКА...» использует приватные `audit/ui_loading_ru.json/atlas`; «ПОБЕДА» — `audit/ui_win_ru_v3.json`, меняющий только ширины/X трёх мешей, с прежними Y/UV/кривыми/эффектами. «АВТО / СОХР.» меняет только текст PNG. Английский логотип2612 заменён пользовательским русским PNG без изменения других локалей/геометрии меню. `verify` проверяет тексты, точные пиксели, приватные TextAsset и параметры адресных полей. Манифесты фиксируют методы/промпты/статус; PNG/Spine не коммитятся.
+## `localize_ui.py`
 
-v0.9.1: resources.assets289009832, metadata14062552 байт;8218 записей,179 изменений/8039 сохранённых. Один build/font-import/verify прошли, отдельный check корпуса — до сборки. В метаданных три прежних размеросохраняющих UI-литерала и четыре подтверждённых видимых формата уровня. Русские строки дописаны в конец literal pool; четыре записи offsets/lengths и последующие header offsets изменены адресно. Рост80 байт сохраняет выравнивание16; прочие payloads/индексы/«Сохр.» сохранены. `verify-runtime-metadata` сравнивает с подтверждённым преобразованием исходника. Пакет установлен2026-10-13 в11:26:48+04:00, только два игровых файла. v0.9.0 сохраняет прежние ресурсы283628496/метаданные14062472 и84 текстуры; её исходники отмечены отдельным тегом.
+Правки вне `TextAsset`: 85 текстур, шесть UI-подписей, интервалы и автоподбор размеров отдельных полей, анимации «ЗАГРУЗКА...» и «ПОБЕДА», русский логотип, контраст боевых диалогов, статический режим основного шрифта.
 
-Проверенный пакет потока RB-010–RB-018 использует пару файлов: `resources.assets` (283 628 432 байта) с новыми текстами/изображениями/полями и `global-metadata.dat` (14 062 472 байта) с двумя адресными форматами. Оба установлены по прямому запросу 2026-10-13 в 02:00:08 +04:00, при закрытой игре, после коммита исходников `cdc4cde`; прежние установленные файлы сохранены в audit для отката. Шаблон заголовков используется только статистикой, шаблон этажей — только кнопками выбора подземелья. Обе замены сохраняют размер метаданных и все остальные байты, в том числе «Сохр.». Runtime-подтверждение ожидается; публикация не выполнялась.
+Метаданные IL2CPP (`patch-runtime-metadata`) меняются адресно: размеросохраняющие форматы статистики и этажей, подпись слота сохранения «Сохр.» (`attributeData`), а форматы уровней и «Особое» дописываются в конец literal pool со сдвигом последующих смещений заголовка. Исходник — чистые метаданные Steam `25319640`; прочие байты сохраняются, что проверяет `verify-runtime-metadata`.
 
-Подготовка метаданных существующим UI-инструментом:
+## Шрифт
 
-```powershell
-python tools/localize_ui.py patch-runtime-metadata <metadata-with-Sohr-before-RB010> <release/Take Me To The Dungeon!!_Data/il2cpp_data/Metadata/global-metadata.dat>
-python tools/localize_ui.py verify-runtime-metadata <metadata-with-Sohr-before-RB010> <release/Take Me To The Dungeon!!_Data/il2cpp_data/Metadata/global-metadata.dat>
-```
+Основной TMP font asset игры `CJKtc SDF` не заменяется. Кириллица подключается статическим fallback `CJKtc RU SDF`, выпеченным из `Noto Sans Regular` (OFL, файл и лицензия — в `unity-font-builder`).
 
-Исходник — подтверждённые метаданные Steam build `25319640` с «Сохр.», но без новых форматов; сохранённый основной пакет 2026-10-08 содержит эту базу. Старый игровой резерв `.ru-original` от августа несовместим. После установки новых форматов не использовать установленный файл как исходник повторной сборки. Резервы не изменять; источник и выход обязаны различаться.
+**Обычная сборка:** `localize.py font-fallback` копирует готовые FontAsset, Material и атлас из `resources.assets` опубликованного выпуска и добавляет ссылку в таблицу fallback `CJKtc SDF`. Донор проверяется: та же версия Unity, та же таблица типов, совпадающая таблица объектов. Результат идентичен работе `font-importer` с исходным бандлом.
 
-## `unity-font-builder`
+**Перевыпечка шрифта** (только при доказанной проблеме с глифами):
 
-Минимальный Unity-проект для выпечки `CJKtc RU SDF`:
-
-- Unity `2022.3.62f3`;
-- TextMeshPro `3.0.6`;
-- `SDFAA_HINTED`;
-- atlas `2048×2048`;
-- sampling size `90`;
-- padding `9`;
-- итоговый режим `Static`.
-
-В качестве кириллического fallback используется `Noto Sans Regular`, распространяемый по OFL и включённый в проект вместе с текстом лицензии. Импортированные TMP Essentials и готовый AssetBundle не публикуются. Исходный игровой `CJKtc SDF` не заменяется: новый шрифт добавляется к нему как fallback.
-
-Пример batchmode-выпечки:
+- `unity-font-builder` — Unity `2022.3.62f3`, TextMeshPro `3.0.6`, `SDFAA_HINTED`, атлас `2048×2048`, sampling `90`, padding `9`, режим `Static`:
 
 ```powershell
 <Unity.exe> -batchmode -nographics -projectPath tools/unity-font-builder -executeMethod BuildCyrillicFont.Build -logFile tools/unity-font-builder/font-build.log
 ```
 
-## `font-importer`
-
-.NET 8-инструмент на AssetsTools.NET переносит выпеченные TMP FontAsset, Material и Texture2D в готовый `resources.assets` и добавляет русский fallback в `CJKtc SDF`.
+- `font-importer` — .NET 8 SDK, AssetsTools.NET; переносит бандл в собранный `resources.assets`:
 
 ```powershell
 dotnet run --project tools/font-importer -- <cjkru-sdf-bundle> <input-resources.assets> <output-resources.assets>
 ```
 
-Path ID внутри importer проверены для Steam build `25319640`. Перед использованием с другой сборкой их необходимо заново проверить.
+После перевыпечки новый выпуск становится донором для последующих сборок.
 
-## Минимальная последовательность
+## Выпуск
 
-1. Проверить `translation.json` командой `localize.py check`.
-2. Собрать TextAsset/UI-патч командой `localize.py build --game-asset <resources.assets.ru-original>`.
-3. Использовать уже готовый статический TMP fallback `tools/unity-font-builder/FontBundle/cjkru-sdf`; без доказанной проблемы заново не выпекать.
-4. Внедрить fallback через `font-importer`.
-5. Выполнить `localize.py verify`.
-6. По явному запросу установить проверенный `resources.assets` при закрытой игре; метаданные копировать только когда они требуют изменения. При публичном выпуске упаковать только пользовательские файлы. Хэши не вычислять, игру автоматически не запускать.
+В `TakeMeToTheDungeon-RU.zip` упаковываются `release/README.txt` и два файла: `Take Me To The Dungeon!!_Data/resources.assets` и `Take Me To The Dungeon!!_Data/il2cpp_data/Metadata/global-metadata.dat`. Установка в игру — только по явному запросу и при закрытой игре.

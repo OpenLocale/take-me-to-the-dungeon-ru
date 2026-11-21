@@ -15,11 +15,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-UNITYPY_DIR = ROOT / ".tools" / "python"
-sys.path.insert(0, str(UNITYPY_DIR))
 
-import UnityPy  # noqa: E402
-import localize_ui  # noqa: E402
+import localize_ui  # noqa: E402  (sets up the pinned UnityPy environment)
+
+UnityPy = localize_ui.UnityPy
 
 
 DEFAULT_GAME_ASSET = Path(
@@ -34,7 +33,6 @@ DEFAULT_OLD_ASSET = (
     / "resources.assets"
 )
 DEFAULT_WORK = ROOT / "translation.json"
-DEFAULT_OUTPUT = ROOT / "release" / "Take Me To The Dungeon!!_Data" / "resources.assets"
 
 CYRILLIC_RE = re.compile(r"[А-Яа-яЁё]")
 FOREIGN_RE = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]")
@@ -408,6 +406,34 @@ def verify_built(game_asset: Path, work: Path, built_asset: Path) -> None:
     )
 
 
+def compare_assets(left: Path, right: Path) -> None:
+    """Compare two serialized files object by object (type, path ID, raw bytes)."""
+    left_file = localize_ui.serialized_file(UnityPy.load(str(left)))
+    right_file = localize_ui.serialized_file(UnityPy.load(str(right)))
+    problems = []
+    if left_file.unity_version != right_file.unity_version:
+        problems.append("Unity version differs")
+    if localize_ui.type_signature(left_file) != localize_ui.type_signature(right_file):
+        problems.append("type table differs")
+    left_ids, right_ids = set(left_file.objects), set(right_file.objects)
+    for path_id in sorted(left_ids - right_ids)[:20]:
+        problems.append(f"only in {left.name}: {path_id}")
+    for path_id in sorted(right_ids - left_ids)[:20]:
+        problems.append(f"only in {right.name}: {path_id}")
+    for path_id in sorted(left_ids & right_ids):
+        a, b = left_file.objects[path_id], right_file.objects[path_id]
+        if a.type_id != b.type_id or a.get_raw_data() != b.get_raw_data():
+            problems.append(f"object {path_id} ({a.type.name}) differs")
+    if problems:
+        print("\n".join(problems[:100]))
+        raise SystemExit(1)
+    identical = left.stat().st_size == right.stat().st_size and left.read_bytes() == right.read_bytes()
+    print(
+        f"Equivalent: {len(left_ids)} objects with identical types and raw data; "
+        f"files are {'byte-identical' if identical else 'laid out differently'}"
+    )
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -439,14 +465,23 @@ def main() -> None:
     font_inputs_parser.add_argument("--characters-output", type=Path, required=True)
 
     build_parser = subparsers.add_parser("build")
-    build_parser.add_argument("--game-asset", type=Path, default=DEFAULT_GAME_ASSET)
+    build_parser.add_argument("--game-asset", type=Path, required=True)
     build_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
-    build_parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    build_parser.add_argument("--output", type=Path, required=True)
 
     verify_parser = subparsers.add_parser("verify")
-    verify_parser.add_argument("--game-asset", type=Path, default=DEFAULT_GAME_ASSET)
+    verify_parser.add_argument("--game-asset", type=Path, required=True)
     verify_parser.add_argument("--work", type=Path, default=DEFAULT_WORK)
-    verify_parser.add_argument("--built-asset", type=Path, default=DEFAULT_OUTPUT)
+    verify_parser.add_argument("--built-asset", type=Path, required=True)
+
+    font_parser = subparsers.add_parser("font-fallback")
+    font_parser.add_argument("--built-asset", type=Path, required=True)
+    font_parser.add_argument("--donor-asset", type=Path, required=True)
+    font_parser.add_argument("--output", type=Path, required=True)
+
+    compare_parser = subparsers.add_parser("compare")
+    compare_parser.add_argument("left", type=Path)
+    compare_parser.add_argument("right", type=Path)
 
     hash_parser = subparsers.add_parser("sha256")
     hash_parser.add_argument("path", type=Path)
@@ -470,6 +505,10 @@ def main() -> None:
         build(args.game_asset, args.work, args.output)
     elif args.command == "verify":
         verify_built(args.game_asset, args.work, args.built_asset)
+    elif args.command == "font-fallback":
+        localize_ui.import_font_fallback(args.built_asset, args.donor_asset, args.output)
+    elif args.command == "compare":
+        compare_assets(args.left, args.right)
     elif args.command == "sha256":
         print(f"{sha256(args.path)}  {args.path.name}")
 

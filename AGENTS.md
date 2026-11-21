@@ -60,31 +60,14 @@
 
 ## Проверка и сборка
 
-Python-зависимость:
+Окружение — Python 3.12 (`.python-version`) с точным набором `tools/requirements.txt`; другие версии Python не поддерживаются. Полная последовательность команд — `tools/README.md`.
 
-```powershell
-python -m pip install -r tools/requirements.txt
-```
+- Корпус: `localize.py check`.
+- `resources.assets`: `localize.py build` из оригинального файла Steam → `localize.py font-fallback` с донором из последнего выпуска → `localize.py verify`.
+- Метаданные: `localize_ui.py patch-runtime-metadata` и `verify-runtime-metadata` из чистого `global-metadata.dat` Steam (не из файла с «Сохр.»).
+- Воспроизводимость: `localize.py compare` с последним выпуском; без изменений исходников результат обязан совпасть с выпуском.
 
-Проверка корпуса:
-
-```powershell
-python tools/localize.py check --work <translation.json>
-```
-
-Сборка текстового assets из оригинального файла:
-
-```powershell
-python tools/localize.py build --game-asset <resources.assets.ru-original> --work <translation.json> --output <build/resources.assets>
-```
-
-Проверка собранного файла:
-
-```powershell
-python tools/localize.py verify --game-asset <resources.assets.ru-original> --work <translation.json> --built-asset <build/resources.assets>
-```
-
-Статический TMP fallback выпекается из включённого `NotoSans-Regular.ttf` в Unity `2022.3.62f3` с TextMeshPro `3.0.6`, после чего импортируется `tools/font-importer`. Готовый AssetBundle собирается локально и не входит в Git.
+Перевыпечка шрифта в Unity и `tools/font-importer` нужны только при доказанной проблеме с глифами.
 
 Release формируется вручную: инструкция `release/README.txt` и оба итоговых файла `Take Me To The Dungeon!!_Data/resources.assets` и `Take Me To The Dungeon!!_Data/il2cpp_data/Metadata/global-metadata.dat` упаковываются в `TakeMeToTheDungeon-RU.zip`. Хэши в текущем рабочем процессе не вычисляются.
 
