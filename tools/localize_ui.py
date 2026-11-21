@@ -11,9 +11,21 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / ".tools" / "python"))
+REQUIRED_PYTHON = (3, 12)
+VENDORED_PACKAGES = ROOT / ".tools" / "python"
+# .tools/python holds cp312 binary wheels; adding it to other interpreters
+# only produces misleading native-module errors.
+if sys.version_info[:2] == REQUIRED_PYTHON and VENDORED_PACKAGES.is_dir():
+    sys.path.insert(0, str(VENDORED_PACKAGES))
 
-import UnityPy  # noqa: E402
+try:
+    import UnityPy  # noqa: E402
+except ImportError as error:
+    raise SystemExit(
+        f"UnityPy is unavailable for Python {sys.version_info.major}.{sys.version_info.minor}: {error}\n"
+        f"Use Python {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]} with the exact packages from "
+        "tools/requirements.txt (see tools/README.md)."
+    ) from error
 
 
 VISIBLE_REPLACEMENTS = {
@@ -152,6 +164,13 @@ ENEMY_NAME_FONT_BOUNDS = (1.1, 2.2)
 # and atlas bytes; use static lookup instead. Font importer keeps this flag.
 PRIMARY_FONT_OBJECT = 225370
 PRIMARY_FONT_MODE_OFFSET = 124
+# The original CJKtc SDF has an empty m_FallbackFontAssetTable; this is its
+# element count. font-importer appends one PPtr to the static Noto Sans
+# fallback, whose FontAsset, Material and atlas get consecutive path IDs.
+FALLBACK_TABLE_COUNT_OFFSET = 688752
+FALLBACK_FONT_NAME = "CJKtc RU SDF"
+FALLBACK_MATERIAL_NAME = "CJKtc RU SDF Material"
+FALLBACK_ATLAS_NAME = "CJKtc RU SDF Atlas"
 
 # DeckDetailUIViewController / Right Panel / Attr Panel / Txt Statictis.
 # DrawPair overlays the number using <line-height=0%><br>; extra spacing
@@ -178,10 +197,16 @@ DUNGEON_FLOOR_FORMAT = (b'{0}st Floor    {1}', 'Этаж {0}   {1}'.encode('utf-
 # the number. Two spaces preserve the5-byte literal without visible/F.
 # Its bytes also prefix literal16556, so patch by exact offset, not replace.
 CURRENT_FLOOR_FORMAT = (b'{0}/F', b'{0}  ')
+# Save-slot label accepted since the 2026-10-08 package. It lives in the
+# attributeData section (header pair24) of the raw Steam metadata; the length
+# prefix stays valid because both UTF-8 strings are9 bytes. The second
+# "Auto Save" occurrence at12943955 is intentionally left unchanged.
+AUTO_SAVE_LABEL = (b'Auto Save', 'Сохр.'.encode('utf-8'))
 RUNTIME_METADATA_REPLACEMENTS = (
     (169765, *DECK_HEADING_FORMAT),
     (612488, *DUNGEON_FLOOR_FORMAT),
     (610625, *CURRENT_FLOOR_FORMAT),
+    (12911946, *AUTO_SAVE_LABEL),
 )
 
 # RB-031: scoped visible level literals in build25319640. Native references:
@@ -1000,6 +1025,7 @@ def verify_environment(env) -> None:
         raise RuntimeError("Full-size resource title rectangle differs")
     if struct.unpack_from("<i", objects[PRIMARY_FONT_OBJECT].get_raw_data(), PRIMARY_FONT_MODE_OFFSET)[0] != 0:
         raise RuntimeError("Primary font must use static lookup before its fallback")
+    fallback_font_ids(objects)
     verify_battle_dialog_background(objects)
     for path_id, (font, _, material, renderer_id) in BATTLE_DIALOG_TEXTS.items():
         obj = objects.get(path_id)
@@ -1041,15 +1067,95 @@ def verify_environment(env) -> None:
             raise RuntimeError("Settings button text padding differs")
 
 
+def serialized_file(env):
+    serialized_files = [item for item in env.files.values() if hasattr(item, "save")]
+    if len(serialized_files) != 1:
+        raise RuntimeError(f"Expected one serialized file, found {len(serialized_files)}")
+    return serialized_files[0]
+
+
+def type_signature(serialized) -> list[tuple]:
+    return [
+        (typ.class_id, getattr(typ, "script_type_index", None), bytes(getattr(typ, "script_id", None) or b""), bytes(getattr(typ, "old_type_hash", None) or b""))
+        for typ in serialized.types
+    ]
+
+
+def fallback_font_ids(objects) -> tuple[int, int, int]:
+    raw = objects[PRIMARY_FONT_OBJECT].get_raw_data()
+    if serialized_string("CJKtc SDF") not in raw[:100]:
+        raise RuntimeError("Primary font layout differs")
+    count = struct.unpack_from("<i", raw, FALLBACK_TABLE_COUNT_OFFSET)[0]
+    if count != 1:
+        raise RuntimeError(f"Primary font must have exactly one Cyrillic fallback, found {count}")
+    file_id, font_id = struct.unpack_from("<iq", raw, FALLBACK_TABLE_COUNT_OFFSET + 4)
+    material_id, atlas_id = font_id + 1, font_id + 2
+    font, material, atlas = (objects.get(path_id) for path_id in (font_id, material_id, atlas_id))
+    if file_id != 0 or font is None or font.type.name != "MonoBehaviour":
+        raise RuntimeError("Cyrillic fallback FontAsset is missing")
+    font_raw = font.get_raw_data()
+    if (serialized_string(FALLBACK_FONT_NAME) not in font_raw[:100]
+            or struct.pack("<iq", 0, material_id) not in font_raw
+            or struct.pack("<iq", 0, atlas_id) not in font_raw):
+        raise RuntimeError("Cyrillic fallback FontAsset references differ")
+    if material is None or material.type.name != "Material" or material.read().m_Name != FALLBACK_MATERIAL_NAME:
+        raise RuntimeError("Cyrillic fallback material is missing")
+    if atlas is None or atlas.type.name != "Texture2D":
+        raise RuntimeError("Cyrillic fallback atlas is missing")
+    texture = atlas.read()
+    if texture.m_Name != FALLBACK_ATLAS_NAME or (texture.m_StreamData and texture.m_StreamData.path):
+        raise RuntimeError("Cyrillic fallback atlas must be embedded in resources.assets")
+    return font_id, material_id, atlas_id
+
+
+def import_font_fallback(built: Path, donor: Path, output: Path) -> None:
+    """Copy the baked static Noto fallback from a released resources.assets.
+
+    Equivalent to font-importer with the original cjkru-sdf bundle, but needs
+    neither Unity nor the .NET SDK. The donor must be a release built for the
+    same Steam build; object table and type table are checked before copying.
+    """
+    if output.resolve() in (built.resolve(), donor.resolve()):
+        raise RuntimeError("Write the font import result to a separate file")
+    env = UnityPy.load(str(built))
+    target = serialized_file(env)
+    donor_env = UnityPy.load(str(donor))
+    source = serialized_file(donor_env)
+    if target.unity_version != source.unity_version or type_signature(target) != type_signature(source):
+        raise RuntimeError("Donor asset belongs to a different game build")
+    ids = fallback_font_ids(source.objects)
+    if max(target.objects) + 1 != ids[0]:
+        raise RuntimeError("Built object table does not match the donor release")
+
+    primary = target.objects[PRIMARY_FONT_OBJECT]
+    raw = bytearray(primary.get_raw_data())
+    if serialized_string("CJKtc SDF") not in raw[:100] or struct.unpack_from("<i", raw, FALLBACK_TABLE_COUNT_OFFSET)[0] != 0:
+        raise RuntimeError("Primary font fallback table differs or is already linked")
+    for path_id in ids:
+        obj = source.objects[path_id]
+        data = obj.get_raw_data()
+        obj.assets_file = target
+        obj.set_raw_data(data)
+        target.objects[path_id] = obj
+    struct.pack_into("<i", raw, FALLBACK_TABLE_COUNT_OFFSET, 1)
+    insert_at = FALLBACK_TABLE_COUNT_OFFSET + 4
+    raw[insert_at:insert_at] = struct.pack("<iq", 0, ids[0])
+    primary.set_raw_data(bytes(raw))
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(target.save())
+    # get_raw_data() ignores pending edits, so validate the written file.
+    if fallback_font_ids(serialized_file(UnityPy.load(str(output))).objects) != ids:
+        raise RuntimeError("Written asset does not link the imported fallback")
+    print(f"Imported static Cyrillic fallback {ids[0]}, material {ids[1]}, atlas {ids[2]} from {donor.name}")
+
+
 def patch(asset: Path, output: Path) -> None:
     env = UnityPy.load(str(asset))
     changed_objects, changed_fields = patch_environment(env)
 
-    serialized_files = [item for item in env.files.values() if hasattr(item, "save")]
-    if len(serialized_files) != 1:
-        raise RuntimeError(f"Expected one serialized file, found {len(serialized_files)}")
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_bytes(serialized_files[0].save())
+    output.write_bytes(serialized_file(env).save())
     print(f"Patched {changed_fields} UI labels across {changed_objects} objects")
 
 
