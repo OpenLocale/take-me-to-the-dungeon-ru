@@ -4,12 +4,12 @@
 
 | Параметр | Значение |
 |---|---|
-| Версия перевода | v0.9.2 |
+| Версия перевода | v0.9.3 |
 | Совместимость | Steam build `25319640` |
 
 ## Скачать
 
-[Скачать v0.9.2](https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/download/v0.9.2/TakeMeToTheDungeon-RU.zip) · [Страница выпуска](https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/tag/v0.9.2)
+[Скачать v0.9.3](https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/download/v0.9.3/TakeMeToTheDungeon-RU.zip) · [Страница выпуска](https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases/tag/v0.9.3)
 
 Архив `TakeMeToTheDungeon-RU.zip` содержит инструкцию `README.txt` и два игровых файла:
 
@@ -48,11 +48,11 @@ Take Me To The Dungeon!!/
 
 После обновления игры проверьте совместимость на [странице выпусков](https://github.com/OpenLocale/take-me-to-the-dungeon-ru/releases) перед повторной установкой перевода.
 
-## Изменения v0.9.2
+## Изменения v0.9.3
 
-- Повышена читаемость боевых диалогов, имён противников и названий рун.
-- Улучшены размещение текста и оформление элементов интерфейса.
-- Исправлены формулировки игровых эффектов и дополнена локализация магазина и выбора подземелья.
+- Исправлено согласование чисел в описаниях карт, модификаций, эффектов и сокровищ.
+- Единообразно используется термин «свойство»; исправлена страница обучения о свойствах урона.
+- Согласованы названия противников, карт, глав и сцен.
 
 [Полная история изменений](https://github.com/OpenLocale/take-me-to-the-dungeon-ru/blob/main/CHANGELOG.md).
 
