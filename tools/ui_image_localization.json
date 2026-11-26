@@ -1,6 +1,6 @@
 {
   "source": "resources.assets of Steam build 25319640 (original file, not an installed localized copy)",
-  "method": "Localized textures are embedded into resources.assets; the original .resS stays unchanged. Common UI images: generated lettering composited onto the original artwork. Tutorial images, the WIN atlas and floor badges: native bitmap editing and typesetting with original dimensions and alpha. Each texture records its own method below.",
+  "method": "Localized textures are embedded into resources.assets; the original .resS stays unchanged. Common UI images: generated lettering composited onto the original artwork. Tutorial images, the WIN atlas and floor badges: native bitmap editing and typesetting with original dimensions and alpha. Each texture records its own method below. Textures stored by the original game as DXT5 or BC7 are encoded as BC7; textures it stored uncompressed stay RGBA32.",
   "external_application_policy": "Lovense application screenshots retain real English controls exactly. No Russian overlays, glosses or extra explanations. Translate only game-owned UI.",
   "intentionally_preserved": [
     "BraveHearts",
@@ -28,6 +28,7 @@
         205,
         221
       ],
+      "encoding": "RGBA32",
       "output_size": [
         150,
         140
@@ -45,6 +46,7 @@
         1848,
         728
       ],
+      "encoding": "BC7",
       "method": "User-supplied RGBA PNG 1868x733; transparent background already present. Aspect-preserving import at1848x725 with3px vertical transparent padding to match original1848x728. No artwork, lettering or style changes; native sprite/rect and other language logos retained. No ImageGen calls."
     },
     {
@@ -57,6 +59,7 @@
         73,
         30
       ],
+      "encoding": "RGBA32",
       "image_references": 22
     },
     {
@@ -68,7 +71,8 @@
       "size": [
         68,
         67
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 3852,
@@ -79,7 +83,8 @@
       "size": [
         68,
         67
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 3088,
@@ -90,7 +95,8 @@
       "size": [
         98,
         98
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 758,
@@ -101,7 +107,8 @@
       "size": [
         98,
         98
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 2624,
@@ -112,7 +119,8 @@
       "size": [
         372,
         116
-      ]
+      ],
+      "encoding": "BC7"
     },
     {
       "texture_path_id": 2151,
@@ -123,7 +131,8 @@
       "size": [
         371,
         114
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 1579,
@@ -134,7 +143,8 @@
       "size": [
         128,
         128
-      ]
+      ],
+      "encoding": "BC7"
     },
     {
       "texture_path_id": 2083,
@@ -145,7 +155,8 @@
       "size": [
         56,
         25
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 1426,
@@ -156,7 +167,8 @@
       "size": [
         91,
         91
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 1226,
@@ -167,7 +179,8 @@
       "size": [
         269,
         279
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 2487,
@@ -178,7 +191,8 @@
       "size": [
         181,
         180
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 2263,
@@ -189,7 +203,8 @@
       "size": [
         176,
         264
-      ]
+      ],
+      "encoding": "BC7"
     },
     {
       "texture_path_id": 1139,
@@ -200,7 +215,8 @@
       "size": [
         69,
         69
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 2835,
@@ -211,7 +227,8 @@
       "size": [
         69,
         69
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 956,
@@ -223,7 +240,8 @@
       "size": [
         512,
         256
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 2491,
@@ -234,7 +252,8 @@
       "size": [
         150,
         140
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 1584,
@@ -245,7 +264,8 @@
       "size": [
         1920,
         407
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 3666,
@@ -256,7 +276,8 @@
       "size": [
         71,
         30
-      ]
+      ],
+      "encoding": "RGBA32"
     },
     {
       "texture_path_id": 723,
@@ -268,6 +289,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_07"
     },
     {
@@ -280,6 +302,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_08"
     },
     {
@@ -292,6 +315,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_09"
     },
     {
@@ -304,6 +328,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_10"
     },
     {
@@ -316,6 +341,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_11"
     },
     {
@@ -328,6 +354,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_12"
     },
     {
@@ -340,6 +367,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_13"
     },
     {
@@ -352,6 +380,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_14"
     },
     {
@@ -364,6 +393,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_15"
     },
     {
@@ -376,6 +406,7 @@
         1046,
         448
       ],
+      "encoding": "RGBA32",
       "resource_key": "locales/en/img/ui_tutor_25"
     },
     {
@@ -388,6 +419,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_28"
     },
     {
@@ -400,6 +432,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_30_2"
     },
     {
@@ -412,6 +445,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_31_2"
     },
     {
@@ -424,6 +458,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_31_3"
     },
     {
@@ -436,6 +471,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_32"
     },
     {
@@ -448,6 +484,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_33"
     },
     {
@@ -460,6 +497,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_40_1"
     },
     {
@@ -472,6 +510,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_40_2"
     },
     {
@@ -484,6 +523,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_41"
     },
     {
@@ -496,6 +536,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_42_1"
     },
     {
@@ -508,6 +549,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_42_2"
     },
     {
@@ -520,6 +562,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_42_3"
     },
     {
@@ -532,6 +575,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_44_1"
     },
     {
@@ -544,6 +588,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_44_2"
     },
     {
@@ -556,6 +601,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_45_1"
     },
     {
@@ -568,6 +614,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_45_2"
     },
     {
@@ -580,6 +627,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_46"
     },
     {
@@ -592,6 +640,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_47_1"
     },
     {
@@ -604,6 +653,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_47_2"
     },
     {
@@ -616,6 +666,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_47_3"
     },
     {
@@ -628,6 +679,7 @@
         1048,
         448
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_47_4"
     },
     {
@@ -640,6 +692,7 @@
         1920,
         1080
       ],
+      "encoding": "BC7",
       "resource_key": "locales/en/img/ui_tutor_treasure"
     },
     {
@@ -652,6 +705,7 @@
         1046,
         448
       ],
+      "encoding": "RGBA32",
       "resource_key": "_naughtytime/locales/en/img/ui_tutor_25"
     },
     {
@@ -661,6 +715,7 @@
         2048,
         1024
       ],
+      "encoding": "BC7",
       "png": "tools/ui_win_logo_ru_v3.png",
       "text": "ПОБЕДА",
       "material_path_id": 555,
@@ -677,6 +732,7 @@
         204,
         189
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_image_3608_ru.png",
       "text": "ЭЛИТА",
       "resource_key": "icon/icondungeonfloornote_elite",
@@ -691,6 +747,7 @@
         204,
         189
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_image_3901_ru.png",
       "text": "БОСС",
       "resource_key": "icon/icondungeonfloornote_boss",
@@ -704,6 +761,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_1274_ru.png",
       "text": "1 ЭТАЖ",
       "alpha_exact": true
@@ -715,6 +773,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_2739_ru.png",
       "text": "21 ЭТАЖ",
       "alpha_exact": true
@@ -726,6 +785,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_3586_ru.png",
       "text": "21 ЭТАЖ",
       "alpha_exact": true
@@ -737,6 +797,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_856_ru.png",
       "text": "41 ЭТАЖ",
       "alpha_exact": true
@@ -748,6 +809,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_1821_ru.png",
       "text": "41 ЭТАЖ",
       "alpha_exact": true
@@ -759,6 +821,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_3750_ru.png",
       "text": "61 ЭТАЖ",
       "alpha_exact": true
@@ -770,6 +833,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_1497_ru.png",
       "text": "61 ЭТАЖ",
       "alpha_exact": true
@@ -781,6 +845,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_1653_ru.png",
       "text": "81 ЭТАЖ",
       "alpha_exact": true
@@ -792,6 +857,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_floor_2574_ru.png",
       "text": "81 ЭТАЖ",
       "alpha_exact": true
@@ -803,6 +869,7 @@
         512,
         256
       ],
+      "encoding": "BC7",
       "png": "tools/ui_dungeon_floor_3093_ru.png",
       "text": "101 ЭТАЖ",
       "alpha_exact": true
@@ -814,6 +881,7 @@
         512,
         256
       ],
+      "encoding": "BC7",
       "png": "tools/ui_dungeon_floor_965_ru.png",
       "text": "101 ЭТАЖ",
       "alpha_exact": true
@@ -825,6 +893,7 @@
         64,
         128
       ],
+      "encoding": "RGBA32",
       "output_size": [
         128,
         128
@@ -846,6 +915,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_2813_ru.png",
       "text": "ОСОБОЕ",
       "alpha_exact": true
@@ -857,6 +927,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_2410_ru.png",
       "text": "ОСОБОЕ",
       "alpha_exact": true
@@ -868,6 +939,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_1825_ru_v2.png",
       "text": "РУНЫ I",
       "alpha_exact": true
@@ -879,6 +951,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_2298_ru_v2.png",
       "text": "РУНЫ I",
       "alpha_exact": true
@@ -890,6 +963,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_862_ru.png",
       "text": "ЗОЛОТО I",
       "alpha_exact": true
@@ -901,6 +975,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_2034_ru.png",
       "text": "ЗОЛОТО I",
       "alpha_exact": true
@@ -912,6 +987,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_693_ru_v2.png",
       "text": "РУНЫ II",
       "alpha_exact": true
@@ -923,6 +999,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_1618_ru_v2.png",
       "text": "РУНЫ II",
       "alpha_exact": true
@@ -934,6 +1011,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_2383_ru.png",
       "text": "ЗОЛОТО II",
       "alpha_exact": true
@@ -945,6 +1023,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_1384_ru.png",
       "text": "ЗОЛОТО II",
       "alpha_exact": true
@@ -956,6 +1035,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_2362_ru_v2.png",
       "text": "РУНЫ III",
       "alpha_exact": true
@@ -967,6 +1047,7 @@
         512,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_dungeon_label_1120_ru_v2.png",
       "text": "РУНЫ III",
       "alpha_exact": true
@@ -978,6 +1059,7 @@
         512,
         256
       ],
+      "encoding": "BC7",
       "png": "tools/ui_dungeon_label_3884_ru.png",
       "text": "ЗОЛОТО III",
       "alpha_exact": true
@@ -989,6 +1071,7 @@
         512,
         256
       ],
+      "encoding": "BC7",
       "png": "tools/ui_dungeon_label_3224_ru.png",
       "text": "ЗОЛОТО III",
       "alpha_exact": true
@@ -1000,6 +1083,7 @@
         512,
         256
       ],
+      "encoding": "BC7",
       "png": "tools/ui_dungeon_label_2423_ru.png",
       "text": "БЕЗДНА",
       "alpha_exact": true
@@ -1011,6 +1095,7 @@
         512,
         256
       ],
+      "encoding": "BC7",
       "png": "tools/ui_dungeon_label_2287_ru.png",
       "text": "БЕЗДНА",
       "alpha_exact": true
@@ -1022,6 +1107,7 @@
         256,
         256
       ],
+      "encoding": "RGBA32",
       "png": "tools/ui_autosave_ru.png",
       "text": "АВТО / СОХР.",
       "skeleton_textasset_path_id": 4425,

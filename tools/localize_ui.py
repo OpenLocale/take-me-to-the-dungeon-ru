@@ -264,6 +264,14 @@ UI_TEXTURE_OUTPUT_SIZES = {
     entry["texture_path_id"]: tuple(entry.get("output_size", entry["size"]))
     for entry in UI_TEXTURE_ENTRIES
 }
+# Textures the game itself shipped as DXT5/BC7 are stored as BC7 (same size
+# as DXT5, far less loss); textures it shipped uncompressed stay RGBA32.
+TEXTURE_FORMATS = {"RGBA32": 4, "BC7": 25}
+UI_TEXTURE_ENCODINGS = {
+    entry["texture_path_id"]: entry["encoding"] for entry in UI_TEXTURE_ENTRIES
+}
+# Lowest BC7 PSNR against the source PNG measured for the 42 textures: 39.2 dB.
+BC7_MIN_PSNR = 38.0
 
 # RB-013: private Spine geometry/UV data for the longer Russian loading word.
 LOADING_TEXT_ASSETS = {
@@ -323,8 +331,20 @@ def patch_ui_textures(env) -> None:
         with Image.open(ROOT / filename) as image:
             if image.size != UI_TEXTURE_OUTPUT_SIZES[path_id]:
                 raise RuntimeError(f"Localized UI texture {filename} has the wrong size")
-            texture.set_image(image.convert("RGBA"), target_format=4, mipmap_count=1)
+            texture.set_image(
+                image.convert("RGBA"),
+                target_format=TEXTURE_FORMATS[UI_TEXTURE_ENCODINGS[path_id]],
+                mipmap_count=1,
+            )
         texture.save()
+
+
+def image_psnr(expected, actual) -> float:
+    from PIL import ImageChops, ImageStat
+
+    rms = ImageStat.Stat(ImageChops.difference(expected, actual)).rms
+    mse = sum(value * value for value in rms) / len(rms)
+    return math.inf if mse == 0 else 10 * math.log10(255 ** 2 / mse)
 
 
 def patch_room_shop_icon(env) -> None:
@@ -909,9 +929,15 @@ def verify_environment(env) -> None:
             raise RuntimeError(f"Localized UI texture {path_id} has the wrong layout")
         if texture.m_StreamData and texture.m_StreamData.path:
             raise RuntimeError(f"Localized UI texture {path_id} is not embedded")
+        encoding = UI_TEXTURE_ENCODINGS[path_id]
+        if int(texture.m_TextureFormat) != TEXTURE_FORMATS[encoding]:
+            raise RuntimeError(f"Localized UI texture {path_id} is not stored as {encoding}")
         with Image.open(ROOT / filename) as image:
-            if texture.image.tobytes() != image.convert("RGBA").tobytes():
+            source, built = image.convert("RGBA"), texture.image.convert("RGBA")
+            if encoding == "RGBA32" and built.tobytes() != source.tobytes():
                 raise RuntimeError(f"Localized UI texture {path_id} pixels differ")
+            if encoding == "BC7" and image_psnr(source, built) < BC7_MIN_PSNR:
+                raise RuntimeError(f"Localized UI texture {path_id} lost too much quality in BC7")
     room_shop = objects.get(ROOM_SHOP_SPRITE)
     reusable_shop = objects.get(LOCALIZED_SHOP_SPRITE)
     if room_shop is None or reusable_shop is None or room_shop.type.name != "Sprite" or reusable_shop.type.name != "Sprite":
